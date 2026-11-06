@@ -116,7 +116,17 @@
             "GrayCancelButton"
         ],
         "inverse": true,
-        "pre_wait_freezes": 120,
+        // inverse 命中时自身没有识别框，wait_freezes 的 target 默认取自身框会取到空 rect，
+        // 因此显式用全屏（[0,0,0,0]）做 120ms 冻结判定。
+        "pre_wait_freezes": {
+            "time": 120,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
