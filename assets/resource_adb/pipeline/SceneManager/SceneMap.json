@@ -28,5 +28,71 @@
             1226,
             340
         ]
+    },
+    // ADB 的 MapOverviewEnter.png 是 236x47 的整行截图（左侧还带着行首左箭头），Click 默认在识别框内
+    // 按正态分布取随机点，落到 x≈1009 的左箭头/空白处会被游戏吞掉：2026-11-05 04:22:27 点击 [1009,638]
+    // 后，__ScenePrivateMapAnyEnterMapOverviewSuccess 连续 21 次识别失败，资源回收站任务失败；同一轮里
+    // [1080,645]、[1106,644]、[1149,642] 等框中心附近的点都能成功进入地区总览。
+    // 因此点击点固定在框中心的「地区总览」文字上，避免随机落点。
+    // 但固定落点仍会被 ADB 输入层丢事件：2026-11-06 06:21:50.3 点击 [1107,647] 成功下发，
+    // __ScenePrivateMapAnyEnterMapOverviewSuccess 到 06:22:11.0 节点超时都未命中（截图
+    // on_error/2026.11.06-06.22.11.78___ScenePrivateMapOtherAreaEnterMapOverview.png 里地图仍未
+    // 切到总览）；同一点在 06:23:28.7 重试后 06:23:30.4 即命中，说明落点正确、只是首次被吞。
+    // 原节点只点一次、next 只有成功节点，失败后框架只重跑 next，不会补点。这里改为同点重试：
+    // 点击 → 等成功节点命中即停，最多 3 次、每次 3s（500ms 轮询）。
+    "__ScenePrivateMapOtherAreaEnterMapOverview": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "action_param": {
+                        "target": [
+                            1107,
+                            647
+                        ]
+                    },
+                    "wait_nodes": [
+                        "__ScenePrivateMapAnyEnterMapOverviewSuccess"
+                    ],
+                    "repeat_count": 3
+                }
+            }
+        }
+    },
+    // 「传送」按钮本身命中稳定（WhiteConfirmButtonType1 0.984355，box [1193,631,31,31]），
+    // 但点击可能整个被吞：2026-11-17 10:15:28 点击 (1197,645) 后 `Node.Action.Succeeded`，
+    // 随后 20.4 s 内 `SceneWaitLoadingExit` / TutorialConfirm / TutorialNext / TeleportSuccess
+    // 各轮询 63 次全部失败，界面毫无变化，节点超时 → AutoEcoFarmStartTeleport 失败 → 农场任务中断。
+    //
+    // 不是落点问题：同日 10:36:05 同一台设备、同一版包，box 与分数完全一致
+    // （0.984355 / [1193,631,31,31]），点击 (1206,636) 距图标圆心 11.3 px，比失败轮的 11.7 px
+    // 还偏，却在 1.2 s 后就等到 `SceneWaitLoadingExit` 并走到 `TeleportSuccess`。
+    // 两轮首拍同样失败（点击后 0.1 s 内的第一次探测必然还没出加载界面），区别只在
+    // 失败轮的点击始终没生效——ADB 输入层丢事件，与落点无关。
+    //
+    // 原节点只点一次、next 全是 `[JumpBack]` 识别节点，失败后框架只重跑 next 不再补点，
+    // 一次被吞就是 20 s 空转。这里改成「点击 → 等后续界面 → 没等到重点」兜底：
+    // 3 次、每次 4 s（500 ms 轮询），最坏 12 s 仍短于默认 20 s timeout。
+    // 不指定 target，让重试每次在识别框内换随机落点，避免同一个点被反复吞。
+    "__ScenePrivateMapTeleportConfirm": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "SceneWaitLoadingExit",
+                        "__ScenePrivateMapTeleportTutorialConfirm",
+                        "__ScenePrivateMapTeleportTutorialNext",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 4000
+                }
+            }
+        }
     }
 }
