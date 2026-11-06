@@ -14,5 +14,50 @@
             109,
             26
         ]
+    },
+    "OutpostTradingSell": {
+        // 识别只作「是否停在交易面板」的闸门，点击位置改用截图量取的固定点：
+        // 不写 target 时框架会在 OCR 文本框（[975,615,300,105]，覆盖按钮下方空白）
+        // 内随机取点，落点可能不在按钮命中区内。
+        "target": [
+            1174,
+            641,
+            8,
+            8
+        ]
+    },
+    "OutpostTradingSellThenLoop": {
+        // 同上，固定到「交易」文字中心。该点落在 1280×720 实机成功点击的
+        // x∈[1175,1212]、y∈[633,660] 区域内（见下方依据）。
+        "target": [
+            1174,
+            641,
+            8,
+            8
+        ],
+        // 基础层是裸 Click + 靠 next 列表等获得物品界面，点空时没有任何补救，
+        // 只能在 AidQuotaExceededStop / SellCheckThenLoop 之间空转直到任务失败。
+        // 这里改成「点一次 → 等 CheckHeader → 没等到再点」，把确认和重试合并到一步。
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "action_param": {
+                "target": [
+                    1174,
+                    641,
+                    8,
+                    8
+                ]
+            },
+            "wait_nodes": [
+                "OutpostTradingCheckHeader"
+            ],
+            // 天王坪实机：06:33:23.921 点击 → 06:33:27.525 才识别到获得物品界面，
+            // 成交反馈约 3.6 s，所以单次等待窗口取 4 s；3.6 s 内命中会立即返回，
+            // 不会重复点击。最多 3 次，与低帧率节点的重试上限一致。
+            "repeat_count": 3,
+            "interval_ms": 4000
+        }
     }
 }
