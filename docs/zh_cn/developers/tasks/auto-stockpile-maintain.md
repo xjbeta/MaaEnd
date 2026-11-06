@@ -180,24 +180,40 @@ var regionBases = map[string]int{
 
 在 `region` 字段的 `enum` 列表中加入新地区标识（如 `"NewRegion"`），确保第三方工具能通过 Schema 校验新增地区的数据。
 
-## 货架双页扫描
+## 货架多页扫描
 
-识别阶段会对弹性货架做**最多两页**扫描，避免清单超出一屏时漏扫商品：
+识别阶段会对弹性货架做**逐屏扫描**（含首屏最多 `maxShelfPages = 4` 屏），避免清单超出一屏时漏扫商品：
 
-1. 对首屏截图执行 OCR + 模板匹配。
+1. 对首屏截图执行 OCR + 模板匹配，记为 page0。
 2. 调用 `AutoStockpileSwipeShelfDown` 下滑一次（`post_wait_freezes` 等待列表稳定）。
-3. 再截图扫描次屏。
-4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅下滑后次屏才出现的 ID 记入 `SecondPageOnlyIDs`）。内部扫屏顺序为 page0=首屏、page1=次屏（0-based）；字段名表示**仅第二屏（page1）**，不是第一屏（page0）。
-5. 调用 `AutoStockpileSwipeShelfUp` 滑回首屏。
+3. 再截图扫描，记为 page1；若本屏出现首屏未见过的商品 ID，继续下滑扫描 page2、page3……
+4. 某一屏没有新增商品 ID（已滑到底或页面不再变化）或达到 4 屏上限时停止。
+5. 按商品 **ID 去重合并**（同 ID 保留最早出现的那一屏结果），并把「首屏没有的商品 ID → 其最早出现的 0-based 页号」记入 `ShelfPageByID`；页号即点击前需要下滑的次数。
+6. 按扫描时实际下滑的次数，逐次调用 `AutoStockpileSwipeShelfUp` 滑回首屏。
 
-下滑或次屏截图/扫描失败时降级为仅首屏结果，不中断任务；滑回首屏失败只记录警告，仍使用合并结果。
+`SecondPageOnlyIDs` 仍会输出，但语义收窄为 `ShelfPageByID` 中页号等于 1 的子集（仅下滑一次后可见），用于兼容旧消费方与日志；判定点击前滑几次以下滑次数字段 `ShelfPageByID` 为准。
+
+下滑、截图或某一屏扫描失败时，用**已扫到的页**继续合并，不中断任务；滑回首屏失败只记录警告，仍使用合并结果。
 
 选中商品后：
 
-- 若商品 ID 在 `SecondPageOnlyIDs` 中（仅第二屏 / page1 可见，例如最后一排），点击前会再执行一次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
+- 若商品在 `ShelfPageByID` 中且页号 `N > 0`（首屏不可见，例如第二、三排），点击前会连续执行 `N` 次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
 - 若首屏（page0）已有该商品，则不额外滑动。
+- 旧数据只有 `SecondPageOnlyIDs` 而没有 `ShelfPageByID` 时，按下滑 1 次回退处理。
 
 滑动节点：
 
 - Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中为 `DoNothing`（一屏可看全）。
 - ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`（含横向收尾与 `end_hold`）。坐标基于 720p，实机若漏扫或过量重复，优先微调 ADB 侧 `begin` / `end` 与 `post_wait_freezes.target`。
+
+## 价格识别与折扣行过滤
+
+价格与商品名来自同一次 OCR（`AutoStockpileGetGoods` 节点），价格候选只接受 `^\d{3,4}$` 的纯数字文本。
+
+货架上的折扣标签（如 `13.6%`）位于价格行上方约 25~30 px。OCR 在低分辨率或文字粘连时会把它整行读成 `1364` / `136` 这类纯数字，从而混入价格候选并抢占真实价格的绑定。为此：
+
+1. 先收集本屏所有含 `%`（或全角 `％`）的 OCR 文本的中心 Y。
+2. 若某个纯数字候选的中心 Y 与任一折扣文本的中心 Y 相差不超过 `discountRowToleranceY = 10` px，则视为折扣行的误读并丢弃（日志 `step=skip_discount_price`）。
+3. 折扣标签本身在价格上方约 25~30 px，不会误伤同一列的真实价格；同一行内其他列的百分比文本也一并用于判定。
+
+若某屏的折扣文本全部被 OCR 丢掉 `%`，该屏的折扣行仍可能进入价格候选；此时绑定会按纵向距离选最近的商品，通常仍落在正确的一行。

@@ -180,24 +180,40 @@ File: `docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json
 
 Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `region` field to ensure third-party tools can validate data for the new region via the Schema.
 
-## Dual-page Shelf Scan
+## Multi-page Shelf Scan
 
-Recognition scans the elastic goods shelf for **at most two pages** so items below the fold are not missed:
+Recognition scans the elastic goods shelf **screen by screen** (at most `maxShelfPages = 4` screens including the first) so items below the fold are not missed:
 
-1. OCR + template match on the first-screen screenshot.
+1. OCR + template match on the first-screen screenshot (page0).
 2. Run `AutoStockpileSwipeShelfDown` once (`post_wait_freezes` waits for list settle).
-3. Screencap and scan the second screen.
-4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only after the swipe go into `SecondPageOnlyIDs`). Internally screens are page0 = first screen, page1 = second screen (0-based); the field means **second-screen-only (page1)**, not the first screen (page0).
-5. Run `AutoStockpileSwipeShelfUp` to restore the first screen.
+3. Screencap and scan as page1; if this screen contains goods IDs not seen before, keep swiping and scanning page2, page3, ...
+4. Stop when a screen adds no new goods ID (bottom reached or the list stopped moving) or the 4-screen cap is hit.
+5. Merge by goods **ID** (on duplicates keep the entry from the earliest screen) and record "ID not on the first screen -> earliest 0-based page index" in `ShelfPageByID`; the page index is the number of swipes needed before clicking.
+6. Run `AutoStockpileSwipeShelfUp` once per swipe performed during scanning, in order, to restore the first screen.
 
-If the swipe down or the second-screen capture/scan fails, fall back to first-screen results without aborting; a failed swipe back up only logs a warning, and the merged results are still used.
+`SecondPageOnlyIDs` is still emitted, but its meaning narrows to the subset of `ShelfPageByID` whose page index is 1 (visible after a single swipe), kept for old consumers and logs; the number of swipes before a click is decided by `ShelfPageByID`.
+
+If a swipe, a screencap or a page scan fails, merge the pages already scanned and keep going without aborting; a failed swipe back up only logs a warning, and the merged results are still used.
 
 After selection:
 
-- If the chosen ID is in `SecondPageOnlyIDs` (visible only on the second screen / page1, e.g. the last row), `AutoStockpileSwipeShelfDown` runs once more before the click, and `AutoStockpileSelectedGoodsClick` then performs the template click.
+- If the item is in `ShelfPageByID` with page index `N > 0` (off the first screen, e.g. the second or third row), `AutoStockpileSwipeShelfDown` runs `N` times before the click, and `AutoStockpileSelectedGoodsClick` then performs the template click.
 - If the item was already on the first screen (page0), click without an extra swipe.
+- With old data that only has `SecondPageOnlyIDs` and no `ShelfPageByID`, fall back to a single swipe.
 
 Swipe nodes:
 
 - Win32 default: `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen).
 - ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; if real devices miss items or show too many duplicates, first tune the ADB-side `begin` / `end` and `post_wait_freezes.target`.
+
+## Price Recognition and Discount-row Filtering
+
+Prices and goods names come from the same OCR run (the `AutoStockpileGetGoods` node); a price candidate must be plain digits matching `^\d{3,4}$`.
+
+Discount labels on the shelf (such as `13.6%`) sit about 25-30 px above the price row. At low resolution or with touching glyphs, OCR sometimes reads such a label as plain digits (`1364` / `136`), which then enters the price candidates and can steal the binding from the real price. To prevent that:
+
+1. Collect the center Y of every OCR text containing `%` (or the full-width `％`) on the screen.
+2. Drop any plain-digit candidate whose center Y is within `discountRowToleranceY = 10` px of such a discount row (logged with `step=skip_discount_price`).
+3. Discount labels are 25-30 px above the price, so a real price in the same column is not affected; percentage texts in other columns of the same row are used as evidence too.
+
+If every discount label on a screen loses its `%` in OCR, that row can still become a price candidate; binding then picks the nearest goods by vertical distance, which normally still lands on the correct row.

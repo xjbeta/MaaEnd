@@ -253,6 +253,35 @@ func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error
 	return box, hit, nil
 }
 
+// discountRowToleranceY 是折扣行与价格候选的中心 Y 容差：折扣标签位于价格上方
+// 约 25~30 px，而同一行文本的中心 Y 只差几 px，10 px 足以区分两者。
+const discountRowToleranceY = 10
+
+// collectDiscountRowCenters 收集「百分比」文本的中心 Y。折扣标签与价格同列、位于
+// 价格上方约 25~30 px；OCR 偶尔把 13.6% 之类整行读成纯数字（1364 / 136），仅靠
+// priceRe 无法区分，必须按所在行排除，否则可能抢占真实价格的绑定。
+func collectDiscountRowCenters(results []*maa.OCRResult) []int {
+	centers := make([]int, 0, len(results))
+	for _, result := range results {
+		if result == nil || !strings.ContainsAny(result.Text, "%％") {
+			continue
+		}
+		centers = append(centers, result.Box.Y()+result.Box.Height()/2)
+	}
+	return centers
+}
+
+// onDiscountRow 判断 OCR 框是否落在任一折扣百分比文本所在的行上。
+func onDiscountRow(box maa.Rect, centers []int) bool {
+	centerY := box.Y() + box.Height()/2
+	for _, center := range centers {
+		if absInt(centerY-center) <= discountRowToleranceY {
+			return true
+		}
+	}
+	return false
+}
+
 func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *ItemMap) ([]priceCandidate, []ocrNameCandidate, AbortReason, error) {
 	if err := overrideGoodsPriceROI(ctx, goodsROI); err != nil {
 		return nil, nil, AbortReasonGoodsOCRUnavailableWarn, err
@@ -268,6 +297,7 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *Ite
 		return nil, nil, AbortReasonGoodsOCRUnavailableWarn, nil
 	}
 
+	discountRows := collectDiscountRowCenters(results)
 	prices := make([]priceCandidate, 0, len(results))
 	ocrNames := make([]ocrNameCandidate, 0, len(results))
 	seenPrice := make(map[string]struct{}, len(results))
@@ -279,6 +309,17 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *Ite
 		}
 
 		if match := priceRe.FindStringSubmatch(text); len(match) == 2 {
+			if onDiscountRow(result.Box, discountRows) {
+				log.Info().
+					Str("component", autoStockpileComponent).
+					Str("step", "skip_discount_price").
+					Str("text", text).
+					Int("box_x", result.Box.X()).
+					Int("box_y", result.Box.Y()).
+					Msg("discount percentage misread as price, skipping")
+				continue
+			}
+
 			priceText := match[1]
 			price, parseErr := strconv.Atoi(priceText)
 			if parseErr != nil {

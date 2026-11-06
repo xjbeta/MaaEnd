@@ -58,8 +58,11 @@ type RecognitionResult struct {
 type RecognitionData struct {
 	Quota QuotaInfo   `json:"Quota"`
 	Goods []GoodsItem `json:"Goods"`
-	// SecondPageOnlyIDs 仅在下滑后的第二屏扫到、首屏没有的商品 ID。
-	// 选中这类商品后需先下滑再点击；勿理解成“第一页专属”。
+	// ShelfPageByID 记录首屏没有的商品 ID → 其最早出现的 0-based 页号，
+	// 也就是点击前需要下滑货架的次数；首屏可见的商品不出现在此表中。
+	ShelfPageByID map[string]int `json:"ShelfPageByID,omitempty"`
+	// SecondPageOnlyIDs 是 ShelfPageByID 中页号为 1 的子集（仅下滑一次后可见）。
+	// 保留该字段用于兼容旧消费方与日志；新逻辑以 ShelfPageByID 为准。
 	SecondPageOnlyIDs []string `json:"SecondPageOnlyIDs,omitempty"`
 }
 

@@ -1,27 +1,42 @@
 package autostockpile
 
-// mergeGoodsByID 合并两页商品：保留首屏条目，仅追加次屏新 ID，并返回仅第二屏出现的 ID 列表。
-func mergeGoodsByID(page0, page1 []GoodsItem) (goods []GoodsItem, secondPageOnlyIDs []string) {
-	seen := make(map[string]struct{}, len(page0)+len(page1))
-	goods = make([]GoodsItem, 0, len(page0)+len(page1))
-	secondPageOnlyIDs = make([]string, 0)
-
-	for _, item := range page0 {
-		if _, ok := seen[item.ID]; ok {
-			continue
-		}
-		seen[item.ID] = struct{}{}
-		goods = append(goods, item)
+// mergeGoodsByID 按商品 ID 合并多页扫描结果：同 ID 保留最早出现的条目，
+// 并返回「不在首屏」的商品 ID → 其最早出现的 0-based 页号。
+// 页号即点击该商品前需要下滑货架的次数。
+func mergeGoodsByID(pages [][]GoodsItem) (goods []GoodsItem, shelfPageByID map[string]int) {
+	total := 0
+	for _, page := range pages {
+		total += len(page)
 	}
 
-	for _, item := range page1 {
-		if _, ok := seen[item.ID]; ok {
-			continue
+	seen := make(map[string]struct{}, total)
+	goods = make([]GoodsItem, 0, total)
+	shelfPageByID = make(map[string]int)
+
+	for pageIndex, page := range pages {
+		for _, item := range page {
+			if _, ok := seen[item.ID]; ok {
+				continue
+			}
+			seen[item.ID] = struct{}{}
+			goods = append(goods, item)
+			if pageIndex > 0 {
+				shelfPageByID[item.ID] = pageIndex
+			}
 		}
-		seen[item.ID] = struct{}{}
-		goods = append(goods, item)
-		secondPageOnlyIDs = append(secondPageOnlyIDs, item.ID)
 	}
 
-	return goods, secondPageOnlyIDs
+	return goods, shelfPageByID
+}
+
+// secondPageOnlyIDsFromPages 按商品顺序挑出页号为 1 的商品 ID：既兼容旧的
+// SecondPageOnlyIDs 字段语义，也让日志顺序稳定（map 遍历本身无序）。
+func secondPageOnlyIDsFromPages(goods []GoodsItem, shelfPageByID map[string]int) []string {
+	ids := make([]string, 0, len(shelfPageByID))
+	for _, item := range goods {
+		if shelfPageByID[item.ID] == 1 {
+			ids = append(ids, item.ID)
+		}
+	}
+	return ids
 }

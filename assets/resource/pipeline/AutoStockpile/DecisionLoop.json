@@ -86,11 +86,15 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
+                // 底边贴到画面底部（180 + 540 = 720）。原 500 的底边为 680，
+                // 会切掉货架第二行商品：ADB 上模板报框为 115x96（y=617 时底边 713），
+                // 2026.11.06 04:20:29 的 AutoStockpile 实机日志里目标 悬空兽骨雕
+                // 正因超出底边只匹配到 0.54~0.66，无法点击。
                 "roi": [
                     50,
                     180,
                     1200,
-                    500
+                    540
                 ],
                 "template": [
                     "AutoStockpile/StockRedistributionButton.png"

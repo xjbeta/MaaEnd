@@ -37,6 +37,12 @@ func copyRecognitionData(src RecognitionData) RecognitionData {
 	dst := src
 	dst.Goods = append([]GoodsItem(nil), src.Goods...)
 	dst.SecondPageOnlyIDs = append([]string(nil), src.SecondPageOnlyIDs...)
+	if src.ShelfPageByID != nil {
+		dst.ShelfPageByID = make(map[string]int, len(src.ShelfPageByID))
+		for id, page := range src.ShelfPageByID {
+			dst.ShelfPageByID[id] = page
+		}
+	}
 	return dst
 }
 
@@ -47,6 +53,17 @@ func isSecondPageOnlyID(data RecognitionData, productID string) bool {
 		}
 	}
 	return false
+}
+
+// shelfSwipesBeforeClick 返回点击商品前需要下滑货架的次数：0 表示首屏可见。
+func shelfSwipesBeforeClick(data RecognitionData, productID string) int {
+	if page, ok := data.ShelfPageByID[productID]; ok && page > 0 {
+		return page
+	}
+	if isSecondPageOnlyID(data, productID) {
+		return 1
+	}
+	return 0
 }
 
 // getDecisionState returns nil if no state has been set; otherwise returns a deep copy.
