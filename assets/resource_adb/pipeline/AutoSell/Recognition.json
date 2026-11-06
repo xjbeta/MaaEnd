@@ -1,10 +1,13 @@
 {
     // 移动端画面缩放后黄色竖条的蓝色通道在 10~15 之间，PC 的上限 10 只剩零星像素
+    // 区域只保留好友名左侧的黄色竖条所在列（x 490~520）：好友头像里的金发同样落在这个色域里，
+    // 区域放宽到头像时 ColorMatch 会取到头像上的色块，点击点随头像颜色漂到好友行左侧空白处，
+    // 点击落空后 AutoSellFriendsPricesExpectedGoToConfirm 一直识别不到「前往」
     "AutoSellFriendsPricesExpectedGoToHighlightRecognition": {
         "roi_offset": [
-            -394,
+            -317,
             -29,
-            136,
+            -2,
             55
         ],
         "upper": [
