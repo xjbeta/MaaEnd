@@ -128,7 +128,19 @@
                 100
             ]
         },
-        "action": "Click",
+        // 低帧率下关闭点击可能被吞掉：点一次后轮询主菜单，最多重试 3 次。
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+                    ]
+                }
+            }
+        },
         "next": [
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]
@@ -292,7 +304,19 @@
             "InRegionalDevelopmentWuling"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        // 低帧率下点击可能被吞掉：点一次后轮询目标界面，最多重试 3 次（目标界面只读，同点重复点击无副作用）。
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingOutpostManagementSuccess"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -319,7 +343,19 @@
             "InRegionalDevelopmentValleyIV"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        // 与武陵同构的低帧率重试：点击后轮询目标界面，最多重试 3 次。
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVOutpostManagementSuccess"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

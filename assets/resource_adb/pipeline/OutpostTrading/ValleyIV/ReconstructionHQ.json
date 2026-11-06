@@ -68,5 +68,22 @@
             "OutOfRangeOverrideEnable": "OutpostTradingReserveAlreadySatisfied",
             "TargetReachableOverrideEnable": "OutpostTradingReserveQuantityReached"
         }
+    },
+    "OutpostTradingReconstructionHQOpenRestoreOperatorList": {
+        // 联络干员按钮本身命中（模板 0.99~1.000，box [317,576,17,16] 与基建前站用的是同一个按钮），
+        // 点击点 [325,584] 就是按钮中心，但列表没打开：2026-11-16 10:09:41 点击后 20 s 内
+        // `...InRestoreOperatorList` 一直不命中，节点失败，整个据点交易中断。
+        // 该点击紧跟在出售完成的「获得物品」界面之后（10:09:36 出售结束 → 10:09:41 点击），
+        // 属于同型的低帧率点击被吞，改成「点击 → 等列表 → 没等到重点」兜底（最多 3 次，4 s 一次）。
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "OutpostTradingReconstructionHQInRestoreOperatorList"
+            ],
+            "repeat_count": 3,
+            "interval_ms": 4000
+        }
     }
 }

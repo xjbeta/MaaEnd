@@ -1285,7 +1285,18 @@
             "OutOfRangeOverrideEnable": "OutpostTradingReserveAlreadySatisfied",
             "TargetReachableOverrideEnable": "OutpostTradingReserveQuantityReached"
         },
-        "post_wait_freezes": 80,
+        // BetterSliding 节点没有 recognition（默认 DirectHit），识别框是空的 [0,0,0,0]，
+        // 只写 80 时 wait_freezes 取不到目标框，直接报 failed to get target rect 并跳过冻结等待。
+        // 这里改用售卖数量面板（可用数量 + 滑条数量）作为冻结目标：滑条停下后数字区域静止才算稳定。
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                1073,
+                327,
+                193,
+                237
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         // next 运行时由 OutpostTradingReserveSession 覆写（与上面注入 attach 的是同一次调用）：
