@@ -372,7 +372,9 @@ def build_cpp(
     preset = "NinjaMulti Android arm64" if abi == "arm64-v8a" else "NinjaMulti Android x64"
     # Same generator as CLion / CMakePresets.json. A leftover single-config Ninja
     # cache in this binaryDir will refuse to reconfigure.
-    run([str(cmake), "--preset", preset], cwd=source)
+    # ENABLE_CCACHE：MaaUtils 只在装了 ccache 时才把它挂成 compiler launcher，
+    # 没装时该开关不产生任何效果，与 tools/setup/build_and_install.py 保持一致。
+    run([str(cmake), "--preset", preset, "-DENABLE_CCACHE=ON"], cwd=source)
     run(
         [
             str(cmake),

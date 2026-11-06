@@ -70,14 +70,20 @@ git add Android/MaaFwApp
 
 ## CI
 
-`.github/workflows/android.yml`：agent 按 ABI（arm64-v8a / x86_64）分别交叉编译，再由 MaaFwApp 出包。MaaFramework 版本与 `install.yml` 一致取最新 release，手动运行可用 `maafw_version` 覆盖。
+`.github/workflows/android.yml`：agent 只交叉编译 arm64-v8a，再由 MaaFwApp 出包。MaaFramework 版本与 `install.yml` 一致取最新 release，手动运行可用 `maafw_version` 覆盖。
 
 | 触发 | 产物 |
 | --- | --- |
-| push / PR（`Android/`、`agent/`、构建脚本变更） | `MaaEnd-android-arm64-v8a-<tag>-debug.apk` |
-| 手动运行选 `assemble=release` | `MaaEnd-android-universal-<tag>.apk`、`MaaEnd-android-arm64-v8a-<tag>.apk`、`MaaEnd-android-x86_64-<tag>.apk` |
+| push / PR（`Android/`、`agent/`、构建脚本变更） | `MaaEnd-android-arm64-v8a-<tag>.apk` |
+| 手动运行 | 同上 |
 | `v*` tag（由 `install.yml` 调用） | 同上，并随桌面包一起上传到 Release |
 
-上面两种只上传为 Actions artifact；正式版的 APK 进 Release 后，由 `mirrorchyan_release.yml` 上传到 Mirror酱 的 `MaaEnd_exec`（os `android`，arm64-v8a / x86_64 各一个架构，universal 不带架构）。
+CI 只出 release 包：debug 包每次都由 runner 上新生成的 debug keystore 签名，签名每次都变，
+覆盖安装必然要卸载清数据。需要调试时用 release 包 + 应用内「调试模式」，
+`files/log/`、`files/on_error/`、`files/pi/debug/go-service.log` 这些落盘件与构建类型无关。
+
+上面这些只上传为 Actions artifact；正式版的 APK 进 Release 后与桌面包放在一起分发，不再上传 Mirror酱。
+
+只发 arm64-v8a 后，旧版本装过的 universal 包不会自动更新到带 ABI 标记的单包，需要手动换装一次；换装后即可走应用内更新。
 
 release 包签名需要仓库 Secrets：`KEYSTORE_BASE64`、`KEYSTORE_PASSWORD`、`KEY_ALIAS`、`KEY_PASSWORD`；未配置时产出未签名包。
