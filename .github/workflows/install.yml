@@ -702,7 +702,6 @@ jobs:
     needs: meta
     uses: ./.github/workflows/android.yml
     with:
-      assemble: release
       ref: ${{ github.event.inputs.ref || github.ref }}
       tag: ${{ needs.meta.outputs.tag }}
       maafw_version: ${{ needs.meta.outputs.maafw_version }}
@@ -796,15 +795,6 @@ jobs:
           body_path: ${{ runner.temp }}/release_body.md
           draft: false
           prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
-
-      - name: Trigger MirrorChyanUploading
-        if: ${{ github.repository_owner == 'MaaEnd' }}
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release.yml -f tag=${{ needs.meta.outputs.tag }}
-          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release_note.yml -f tag=${{ needs.meta.outputs.tag }}
 
       - name: Send Discord release notification
         env:
