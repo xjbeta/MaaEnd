@@ -664,33 +664,99 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuySlide"
+            "AutoSellFriendsPricesExpectedQuantityMax"
         ]
     },
-    "AutoSellFriendsPricesExpectedBuySlide": {
-        "desc": "从好友价格界面返回到物资调度界面调整滑块",
-        "recognition": "TemplateMatch",
-        "roi_offset": [
-            639,
-            495,
-            255,
-            146
-        ],
-        "template": "AutoStockpile/IncreaseButton.png",
-        "green_mask": true,
-        "pre_wait_freezes": 100,
+    "AutoSellFriendsPricesExpectedQuantityMax": {
+        "desc": "把出售数量滑条拖到最右，选中该物资的全部库存",
         "pre_delay": 0,
-        "action": "Click",
-        "target_offset": [
-            -70,
-            5,
-            -10,
-            -10
-        ],
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "Direction": "right"
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                300,
+                490,
+                440,
+                120
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedQuantityEnough",
+            "AutoSellFriendsPricesExpectedQuantityRetry"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedQuantityEnough": {
+        "desc": "出售数量已达到库存，可以售卖",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellSellDialogQuantityRecognition} >= {AutoSellSellDialogStockRecognition}",
+            "box_node": "AutoSellSellDialogQuantityRecognition"
+        },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedQuantityRetry": {
+        "desc": "出售数量仍小于库存，再拖一次滑条",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellSellDialogQuantityRecognition} < {AutoSellSellDialogStockRecognition}",
+            "box_node": "AutoSellSellDialogQuantityRecognition"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "Direction": "right"
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                300,
+                490,
+                440,
+                120
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedQuantityEnough",
+            "AutoSellFriendsPricesExpectedQuantityShort"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedQuantityShort": {
+        "desc": "补拖一次后出售数量仍小于库存，结束任务并报错",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellSellDialogQuantityRecognition} < {AutoSellSellDialogStockRecognition}",
+            "box_node": "AutoSellSellDialogQuantityRecognition"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
         ]
     },
     "AutoSellFriendsPricesExpectedBuyClick": {

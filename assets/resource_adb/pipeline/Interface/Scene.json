@@ -1,0 +1,55 @@
+{
+    // ADB 覆盖：奖励面板关闭按钮改用「点击 + 识别验证 + 重试」。
+    // 依据 2026.11.06 04:21:32 的 AutoSell 实机日志：出售成功浮层出现后，
+    // SceneNoticeRewardsConfirmClick 于 04:21:36.635 点击 (651,605)，随后
+    // post_wait_freezes（target [500,0,280,200]，time 400）仅 426ms 就判定稳定，
+    // 即顶部区域没有任何变化——点击被 ADB 输入层吞掉；紧接着同一节点在
+    // AutoStockStaple 链上于 04:22:04.252 再次被吞、04:22:09.231 才生效，
+    // 同一按钮连续两次点击丢失，属输入丢失而非落点问题。
+    // 原节点点击一次后直接 next，没有任何「浮层是否已关闭」的校验，浮层会一直
+    // 留在屏幕上，导致后续 InFriendsStockRedistribution 等识别全部失败。
+    // 这里改为 RepeatUntilNotFoundAction：点击 → 以本节点（InNoticeRewards +
+    // CloseRewardsButton）为 wait_node 轮询 500ms/最长 3s，浮层消失即结束，
+    // 仍在则再点，最多 3 次。target 固定为识别框，保证每次重试落在同一按钮上。
+    "SceneNoticeRewardsConfirmClick": {
+        "desc": "奖励界面：点击 CloseRewardsButton 关闭（ADB：点击被吞时重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InNoticeRewards",
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "SceneNoticeRewardsConfirmClick",
+                    "repeat_count": 3
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ],
+            "timeout": 2000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SceneNoticeRewardsUpgrade",
+            "__ScenePrivateNextTrue"
+        ]
+    }
+}
