@@ -240,6 +240,39 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 			Msg("target quantity clamped to slider max quantity")
 	}
 
+	// 补滑分支把本节点的 next 改成了 SwipeToMax。第二次读完之后必须先还原，
+	// 否则目标可达时 next 仍是 SwipeToMax，会无限补滑。
+	if a.swipeToMaxRetried {
+		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingFindEnd}}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Str("next", nodeBetterSlidingFindEnd).
+				Msg("failed to restore next after swipe-to-max retry")
+			return false
+		}
+	}
+
+	// 「滑到最大」本应把当前数量抬到滑条上限，读回来却仍是 1：说明这次拖动没有生效。
+	// 谷地难民暂居处实机复现过该现象——41 个点、425 ms 的手势照常发出，滑条 knob 停在
+	// 最左，随后读取到 1 并被钳制到 1，直接跳到 Done，交易份数停在 1。
+	// 仓库可用量远大于 1 时上限不可能是 1，所以补滑一次；补滑后仍是 1 就按上限 1 收尾。
+	if !a.outOfRange && a.sliderMaxQuantity == 1 && a.availableQuantity > 1 && !a.swipeToMaxRetried {
+		a.swipeToMaxRetried = true
+		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingSwipeToMax}}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Str("next", nodeBetterSlidingSwipeToMax).
+				Msg("failed to override next for swipe-to-max retry")
+			return false
+		}
+		a.logger.Warn().
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Int("available_quantity", a.availableQuantity).
+			Str("next", nodeBetterSlidingSwipeToMax).
+			Msg("swipe to max had no effect, retry once")
+		return true
+	}
+
 	if a.outOfRange {
 		if a.OutOfRangeOverrideEnable == "" {
 			a.logger.Error().
@@ -1158,6 +1191,7 @@ func (a *BetterSlidingAction) resetState() {
 	a.sliderMaxQuantity = 0
 	a.availableQuantity = 0
 	a.availableQuantityResolved = false
+	a.swipeToMaxRetried = false
 	a.outOfRange = false
 	a.targetReachable = false
 	a.minimumTargetShortCircuit = false

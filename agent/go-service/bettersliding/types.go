@@ -136,8 +136,10 @@ type BetterSlidingAction struct {
 	sliderMaxQuantity         int
 	availableQuantity         int
 	availableQuantityResolved bool
-	outOfRange                bool
-	targetReachable           bool
+	// swipeToMaxRetried 表示已为「滑到最大后数量仍是 1」补滑过一次，避免死循环。
+	swipeToMaxRetried bool
+	outOfRange        bool
+	targetReachable   bool
 	// minimumTargetShortCircuit 表示本次走「目标即最小值 1」的短路路径：
 	// 跳过滑条端点识别与精确点击，ResetBeforeFindStart 时仅执行复位滑动后直接收尾。
 	minimumTargetShortCircuit bool
