@@ -91,7 +91,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return buildAbortedRecognitionResult(arg, overflowAbortReason)
 	}
 
-	resultGoods, secondPageOnlyIDs, goodsAbortReason, scanErr := scanGoodsWithOptionalSecondPage(ctx, arg.Img, region, itemMap)
+	resultGoods, shelfPageByID, goodsAbortReason, scanErr := scanGoodsWithPages(ctx, arg.Img, region, itemMap)
 	if goodsAbortReason != AbortReasonNone {
 		log.Warn().
 			Err(scanErr).
@@ -126,7 +126,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 				Overflow: overflowAmount,
 			},
 			Goods:             resultGoods,
-			SecondPageOnlyIDs: secondPageOnlyIDs,
+			ShelfPageByID:     shelfPageByID,
+			SecondPageOnlyIDs: secondPageOnlyIDsFromPages(resultGoods, shelfPageByID),
 		},
 		AbortReason: AbortReasonNone,
 	}
@@ -147,6 +148,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Bool("overflow", resultPayload.hasOverflow()).
 		Str("abort_reason", string(resultPayload.AbortReason)).
 		Int("goods_count", len(resultPayload.Data.Goods)).
+		Int("shelf_page_count", len(resultPayload.Data.ShelfPageByID)).
 		Int("second_page_only_count", len(resultPayload.Data.SecondPageOnlyIDs)).
 		Msg("custom recognition finished")
 	maafocus.Print(ctx, i18n.T("autostockpile.recognition_done", len(resultPayload.Data.Goods)))

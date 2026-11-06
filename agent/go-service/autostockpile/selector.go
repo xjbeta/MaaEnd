@@ -198,20 +198,32 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	if isSecondPageOnlyID(*data, selection.ProductID) {
-		log.Info().
-			Str("component", "autostockpile").
-			Str("product_id", selection.ProductID).
-			Str("product_name", selection.ProductName).
-			Msg("selected goods only on second page, swipe shelf down before click")
-		if swipeErr := swipeShelfDown(ctx); swipeErr != nil {
-			log.Error().
-				Err(swipeErr).
+	if swipes := shelfSwipesBeforeClick(*data, selection.ProductID); swipes > 0 {
+		// 选品数据来自扫描时的首屏截图，而首屏可能截在货架展开动画里，把实际
+		// 可见的第二行商品记成「非首屏」。滑动本身在 ADB 上可能被吞，盲滑一次
+		// 就会让后续点击停在旧画面，因此先确认目标是否已在屏上，滑动后再逐次
+		// 校验并按需补滑。
+		revealed, revealErr := revealSelectedGoodsBeforeClick(ctx, selection.ProductID, swipes)
+		if revealErr != nil {
+			return false
+		}
+		if !revealed {
+			// 补滑后目标仍不可见：跳过本分支，避免点击节点空转 20 s 让整个任务失败。
+			log.Warn().
 				Str("component", "autostockpile").
 				Str("product_id", selection.ProductID).
-				Str("step", "shelf_swipe_down_before_click").
-				Msg("failed to reveal second-page-only goods before click")
-			return false
+				Str("product_name", selection.ProductName).
+				Msg("selected goods is unreachable after revealing swipes, skip this branch")
+			maafocus.Print(ctx, i18n.T("autostockpile.goods_not_reachable", selection.ProductName))
+			if err := overrideSkipBranch(ctx); err != nil {
+				log.Error().
+					Err(err).
+					Str("component", "autostockpile").
+					Str("node", arg.CurrentTaskName).
+					Msg("failed to enable skip branch")
+				return false
+			}
+			return true
 		}
 	}
 

@@ -53,6 +53,7 @@
     "autostockpile.mode_low_price": "저가 구매",
     "autostockpile.mode_min_buy": "일일 최소 구매",
     "autostockpile.mode_overflow": "오버플로 방지",
+    "autostockpile.goods_not_reachable": "\"%s\" 항목을 클릭 가능한 위치로 스크롤하지 못해 이 상품을 건너뜁니다",
     "autostockpile.no_goods_recognized": "인식된 상품이 없습니다",
     "autostockpile.no_qualifying_goods": "조건을 만족하는 상품이 없습니다",
     "autostockpile.no_qualifying_product": "조건에 맞는 상품을 찾지 못했습니다 (%s)",
