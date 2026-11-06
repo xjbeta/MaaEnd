@@ -1,4 +1,31 @@
 {
+    // 手机端「3天」刷新框填充实测 RGB(0,216,116) → HSV(76,255,216)，基础层青绿范围的 V 上界只到 215，
+    // 掩膜只吃到抗锯齿轮廓（195 个 1×1~7×3 碎片），count=300 永远不满足；ADB 侧把 V 上界放宽到 225。
+    // 黄 / 红两组范围原样保留（未见失败样本，不猜测改动）。
+    "AutoStockInStapleItem": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "upper": [
+                    [
+                        76,
+                        255,
+                        225
+                    ],
+                    [
+                        24,
+                        255,
+                        255
+                    ],
+                    [
+                        160,
+                        255,
+                        217
+                    ]
+                ]
+            }
+        }
+    },
     "AutoStockInStapleItemNameLabelColor": {
         "roi_offset": [
             -5,
