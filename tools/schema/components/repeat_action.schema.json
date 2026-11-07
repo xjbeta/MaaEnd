@@ -12,6 +12,11 @@
                     "type": "string",
                     "minLength": 1
                 },
+                "action_param": {
+                    "title": "Built-in Action Param",
+                    "description": "Forwarded to the built-in action as-is, e.g. Click's target_offset, so every attempt keeps the same target as the node it replaces.",
+                    "type": "object"
+                },
                 "custom_action": {
                     "title": "Custom Action",
                     "description": "Registered custom action name to repeat (e.g. AutoAltClickAction). Mutually exclusive with action.",
@@ -49,6 +54,7 @@
                     "required": ["wait_nodes"],
                     "properties": {
                         "action": true,
+                        "action_param": true,
                         "custom_action": true,
                         "custom_action_param": true,
                         "repeat_count": true,
@@ -94,6 +100,7 @@
                     "required": ["wait_node"],
                     "properties": {
                         "action": true,
+                        "action_param": true,
                         "custom_action": true,
                         "custom_action_param": true,
                         "repeat_count": true,
