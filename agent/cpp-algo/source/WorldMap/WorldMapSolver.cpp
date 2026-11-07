@@ -26,6 +26,18 @@ constexpr int kMinTemplateSide = 24;
 constexpr int kMinAnchorSide = 6;
 constexpr const char* kIconDir = "SceneManager";
 
+// 粗解分数在低尺度上系统性虚高：模板缩得越小，越容易撞上重复纹理，同一个假峰在降采样
+// 图上能到 0.76，回到原尺度只剩 0.66。所以粗解 argmax 只是一条线索，细解要多看几簇。
+// 3 簇够用：scaleMin 收到 0.40 之后低尺度那一片假峰并成一簇，真解那一带自然排到第二、三簇
+// （2026-11-08 21:00 那帧按粗解分数推算：0.40 / 0.484 / 0.644，真解 0.604 落在第三簇）
+constexpr size_t kMaxFineCandidates = 3;
+// 峰值旁瓣比才是"唯一解"的直接证据：2026-11-08 那轮 39 次求解里，被拒的假峰 psr 1.29–4.85，
+// 接收的解 psr 4.68–28.0。但 21:00 那次误收的假峰 psr=4.57、分数 0.562 还压过对手 0.072，
+// 只看"与次优差多少"拦不住一片相似纹理里的任意一点，所以没钉尺度时这道闸是接收前提，
+// 不再只是快路径：没过闸就让这一帧不认，交给挪图换画面。原先 4.7 附近那种真解会被退回
+// 整窗匹配、由分块投票那条路重解（实测那条路上真解 psr 14.7 起）
+constexpr double kMinPsr = 6.0;
+
 // 分块投票：块内像素几乎不起伏就给不出定位信息，归一化相关在这种块上只会放大噪声，
 // 让它弃权。投票的块太少则中位数不再有多数可言，整档作废改由别的档说话
 constexpr double kVoteBlockMinStdDev = 1.0;
@@ -203,6 +215,9 @@ struct ScanRung
 {
     double scale = 0.0;
     double score = -1.0;
+    // 落点与旁瓣比随档存下来：落点要给每个候选各开一个细解窗，旁瓣比用来分辨真假峰
+    double psr = 0.0;
+    cv::Point2d loc { 0.0, 0.0 };
 };
 
 std::vector<double> GeometricLadder(double lo, double hi, double ratio)
@@ -229,6 +244,32 @@ std::vector<double> LinearLadder(double lo, double hi, int steps)
     }
     for (int i = 0; i < steps; ++i) {
         out.push_back(lo + (hi - lo) * i / (steps - 1));
+    }
+    return out;
+}
+
+// 粗解各档按尺度聚类，每簇只留分数最高的一档：相邻档差一个 coarseRatio，细解以后分数
+// 几乎一样，簇内的其余档再验一遍纯属白扫。按分数从高到低取，第一簇就是原来那个 argmax。
+// 阈值放宽 5%：相邻档正好落在边界上，浮点误差会把它算成独立一簇
+std::vector<ScanRung> DistinctRungs(std::vector<ScanRung> rungs, double ratio, std::size_t limit)
+{
+    std::sort(rungs.begin(), rungs.end(), [](const ScanRung& a, const ScanRung& b) { return a.score > b.score; });
+    std::vector<ScanRung> out;
+    for (const ScanRung& rung : rungs) {
+        bool clustered = false;
+        for (const ScanRung& kept : out) {
+            if (std::abs(rung.scale - kept.scale) <= kept.scale * (ratio - 1.0) * 1.05) {
+                clustered = true;
+                break;
+            }
+        }
+        if (clustered) {
+            continue;
+        }
+        out.push_back(rung);
+        if (out.size() >= limit) {
+            break;
+        }
     }
     return out;
 }
@@ -364,7 +405,7 @@ std::optional<ScanHit> ScanScales(
         }
 
         if (rungs != nullptr) {
-            rungs->push_back(ScanRung { .scale = scale, .score = hit->score });
+            rungs->push_back(ScanRung { .scale = scale, .score = hit->score, .psr = hit->psr, .loc = hit->loc });
         }
         if (!best || hit->score > best->score) {
             best = ScanHit {
@@ -459,9 +500,12 @@ struct ScanMask
     double fogRatio = 0.0;
 };
 
-// 粗解在降采样图上定位置，细解回到原尺度定尺度，再拿粗解各档判这个解唯不唯一。
+// 粗解在降采样图上定位置，细解回到原尺度定尺度。
 // voteGrid 为 1 走整窗匹配，大于 1 则两级都改用分块投票。mask 只对整窗匹配生效，
-// 粗细两级用同一份掩膜，判唯一性的对手档也就在同一口径下算出来
+// 粗细两级用同一份掩膜。
+// 粗解 argmax 只当线索：低尺度假峰在降采样图上分数虚高（0.76 → 细解 0.66），真解的
+// 细解分数反而更高，所以先验 argmax 那一簇，旁瓣比够尖就收，不够尖再验下一簇，
+// 最后按旁瓣比挑，分数差只在旁瓣比也不高时兜底
 std::optional<Viewport> ScanViewport(
     const cv::Mat& base,
     const cv::Mat& baseSmall,
@@ -495,77 +539,171 @@ std::optional<Viewport> ScanViewport(
         std::max(1, static_cast<int>(std::lround(cfg.voteMinBlockSide / static_cast<double>(down)))),
         &coarseRungs);
     if (!coarse) {
-        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone) << VAR(voteGrid);
+        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone) << VAR(voteGrid)
+                << VAR(coarseLadder.empty() ? 0.0 : coarseLadder.front()) << VAR(coarseLadder.empty() ? 0.0 : coarseLadder.back())
+                << VAR(cfg.coarseRatio);
         return std::nullopt;
     }
 
     // 细解：回到原尺度，搜索窗只覆盖粗解落点附近，两侧各留一个降采样格的不确定度。
     // 尺度只需覆盖到相邻两档粗解之间，再宽就是白扫
     const int pad = down * 3;
-    const double span = coarse->scale * (cfg.coarseRatio - 1.0) * 1.2;
-    const int windowX = std::max(0, static_cast<int>(std::lround(coarse->loc.x * down)) - pad);
-    const int windowY = std::max(0, static_cast<int>(std::lround(coarse->loc.y * down)) - pad);
-    const cv::Rect window(
-        windowX,
-        windowY,
-        std::min(static_cast<int>(std::lround(roi.cols * (coarse->scale + span))) + pad * 2, base.cols - windowX),
-        std::min(static_cast<int>(std::lround(roi.rows * (coarse->scale + span))) + pad * 2, base.rows - windowY));
-    if (window.width < kMinTemplateSide || window.height < kMinTemplateSide) {
-        LogWarn << "WorldMap: fine window degenerated" << VAR(window.width) << VAR(window.height) << VAR(voteGrid);
-        return std::nullopt;
+    struct Refined
+    {
+        ScanHit hit;
+        cv::Point2d origin { 0.0, 0.0 }; // 细解窗口在底图上的原点
+        double fineLow = 0.0;
+        double fineHigh = 0.0;
+        bool atSearchBound = false;
+    };
+    const auto refine = [&](const ScanRung& seed) -> std::optional<Refined> {
+        const double span = seed.scale * (cfg.coarseRatio - 1.0) * 1.2;
+        const int windowX = std::max(0, static_cast<int>(std::lround(seed.loc.x * down)) - pad);
+        const int windowY = std::max(0, static_cast<int>(std::lround(seed.loc.y * down)) - pad);
+        const cv::Rect window(
+            windowX,
+            windowY,
+            std::min(static_cast<int>(std::lround(roi.cols * (seed.scale + span))) + pad * 2, base.cols - windowX),
+            std::min(static_cast<int>(std::lround(roi.rows * (seed.scale + span))) + pad * 2, base.rows - windowY));
+        if (window.width < kMinTemplateSide || window.height < kMinTemplateSide) {
+            LogWarn << "WorldMap: fine window degenerated" << VAR(window.width) << VAR(window.height) << VAR(voteGrid) << VAR(seed.scale);
+            return std::nullopt;
+        }
+
+        // 钉尺度时细解钉的是给定值本身，不跟着粗解落档走：缩放变了就该让分数掉下去被拒，
+        // 跟过去反倒会拿一个差着一档的尺度算出错位置
+        const std::vector<double> fineLadder = cfg.scaleHint
+                                                   ? std::vector<double> { *cfg.scaleHint }
+                                                   : LinearLadder(std::max(cfg.scaleMin, seed.scale - span), seed.scale + span, cfg.fineSteps);
+
+        const auto fine = ScanScales(
+            base(window),
+            roi,
+            mask.full,
+            fineLadder,
+            kMinTemplateSide,
+            0,
+            maplocator::PeakRefineMode::Continuous,
+            voteGrid,
+            cfg.voteMinBlockSide);
+        if (!fine) {
+            LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone) << VAR(voteGrid)
+                    << VAR(fineLadder.empty() ? 0.0 : fineLadder.front()) << VAR(fineLadder.empty() ? 0.0 : fineLadder.back())
+                    << VAR(seed.scale);
+            return std::nullopt;
+        }
+
+        // 解落在细解阶梯的端点上，说明真值被搜索范围切掉了：同一个低尺度反复出现时，
+        // 得先分清是"到了下界"还是"这就是真解"，否则照着日志改阈值只会改错方向。
+        // 钉了尺度时整条阶梯只有一个值，端点没有意义，此时一律不计
+        const double fineLow = fineLadder.empty() ? 0.0 : fineLadder.front();
+        const double fineHigh = fineLadder.empty() ? 0.0 : fineLadder.back();
+        const double fineStep = fineLadder.size() > 1 ? fineLadder[1] - fineLadder[0] : 0.0;
+        const bool laddered = !cfg.scaleHint && fineStep > 0.0;
+        const bool atScaleMin = laddered && std::abs(fine->scale - fineLow) <= fineStep * 0.5;
+        const bool atScaleMax = laddered && std::abs(fine->scale - fineHigh) <= fineStep * 0.5;
+
+        LogInfo << "WorldMap: fine candidate" << VAR(zone) << VAR(seed.scale) << VAR(seed.score) << VAR(fine->scale) << VAR(fine->score)
+                << VAR(fine->psr) << VAR(voteGrid) << VAR(atScaleMin || atScaleMax);
+        return Refined { .hit = *fine,
+                         .origin = cv::Point2d(window.x, window.y),
+                         .fineLow = fineLow,
+                         .fineHigh = fineHigh,
+                         .atSearchBound = atScaleMin || atScaleMax };
+    };
+
+    // 钉了尺度时只有三档粗解、细解也只钉一档，多候选没有意义
+    std::vector<ScanRung> seeds;
+    if (cfg.scaleHint) {
+        seeds.push_back(ScanRung { .scale = coarse->scale, .score = coarse->score, .psr = coarse->psr, .loc = coarse->loc });
+    }
+    else {
+        seeds = DistinctRungs(coarseRungs, cfg.coarseRatio, kMaxFineCandidates);
     }
 
-    // 钉尺度时细解钉的是给定值本身，不跟着粗解落档走：缩放变了就该让分数掉下去被拒，
-    // 跟过去反倒会拿一个差着一档的尺度算出错位置
-    const std::vector<double> fineLadder =
-        cfg.scaleHint ? std::vector<double> { *cfg.scaleHint }
-                      : LinearLadder(std::max(cfg.scaleMin, coarse->scale - span), coarse->scale + span, cfg.fineSteps);
-
-    // 细解窗口是照模板尺寸开的，本来就贴边，可落位置已由粗解锚定，不需要再留余量
-    const auto fine = ScanScales(
-        base(window),
-        roi,
-        mask.full,
-        fineLadder,
-        kMinTemplateSide,
-        0,
-        maplocator::PeakRefineMode::Continuous,
-        voteGrid,
-        cfg.voteMinBlockSide);
-    if (!fine) {
-        LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone) << VAR(voteGrid);
-        return std::nullopt;
+    // 全档分数只在调试开着时才拼串：留着它才能事后确认真解有没有掉出候选数
+    if (!cfg.scaleHint) {
+        std::string dump;
+        for (const ScanRung& rung : coarseRungs) {
+            dump += std::to_string(rung.scale) + ":" + std::to_string(rung.score) + " ";
+        }
+        LogDebug << "WorldMap: coarse rungs" << VAR(zone) << VAR(voteGrid) << dump;
     }
 
-    // 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
-    // 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
-    double rivalBest = 0.0;
-    for (const ScanRung& rung : coarseRungs) {
-        if (std::abs(rung.scale - fine->scale) > 0.06 * fine->scale) {
-            rivalBest = std::max(rivalBest, rung.score);
+    std::vector<Refined> refined;
+    for (const ScanRung& seed : seeds) {
+        const auto fine = refine(seed);
+        if (!fine) {
+            continue;
+        }
+        refined.push_back(*fine);
+        // 尖峰且分数过线就是唯一解，剩下的簇不必再验
+        if (fine->hit.psr >= kMinPsr && fine->hit.score >= cfg.minScore) {
+            break;
         }
     }
-    const double delta = fine->score - rivalBest;
-
-    if (fine->score < cfg.minScore || delta < cfg.minDelta) {
-        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr) << VAR(fine->scale)
-                << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid) << VAR(mask.fogRatio);
+    if (refined.empty()) {
         return std::nullopt;
     }
 
+    // 先按旁瓣比挑：真解的峰是尖的，假峰是一片相似纹理里的任意一点
+    std::size_t best = 0;
+    for (std::size_t i = 1; i < refined.size(); ++i) {
+        if (refined[i].hit.psr > refined[best].hit.psr) {
+            best = i;
+        }
+    }
+    // 可信度：细解各档彼此相差不到一成，分数几乎一样高，互为次高分毫无意义；与尺度差 6%
+    // 以上的另一簇细解比才说明这个解真的唯一。只验了一簇时退回与粗解档比（钉尺度的老口径）
+    bool hasRival = false;
+    double rivalBest = 0.0;
+    for (std::size_t i = 0; i < refined.size(); ++i) {
+        if (i != best) {
+            rivalBest = std::max(rivalBest, refined[i].hit.score);
+            hasRival = true;
+        }
+    }
+    // 没验到第二簇时，只能拿粗解档当对手，跟改多候选之前的口径一致
+    if (!hasRival) {
+        for (const ScanRung& rung : coarseRungs) {
+            if (std::abs(rung.scale - refined[best].hit.scale) > 0.06 * refined[best].hit.scale) {
+                rivalBest = std::max(rivalBest, rung.score);
+            }
+        }
+    }
+    const double delta = refined[best].hit.score - rivalBest;
+
+    // 钉尺度那条路是"验证给定尺度还成不成立"，判据原样不动，免得把一次缩放变化放过：
+    // 它没有尺度自由度，旁瓣比高低只说明这点像不像，分数掉下去才是要看的东西。
+    // 不钉尺度时旁瓣比必须过闸：低尺度上整片相似纹理里随便一个点都能把分数和 delta 顶起来
+    // （实测 psr=4.57、分数 0.562、压过次优 0.072 被收下，目标算到 (-1816,-1280)），
+    // 宁可这一帧不认、交给挪图换画面重解，也不收一个会算错位置的解
+    const bool sharp = refined[best].hit.psr >= kMinPsr;
+    const bool accepted = cfg.scaleHint ? delta >= cfg.minDelta : sharp;
+
+    if (refined[best].hit.score < cfg.minScore || !accepted) {
+        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(refined[best].hit.score) << VAR(delta) << VAR(rivalBest)
+                << VAR(refined[best].hit.psr) << VAR(refined[best].hit.scale) << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid)
+                << VAR(mask.fogRatio) << VAR(cfg.scaleMin) << VAR(cfg.scaleMax) << VAR(refined[best].fineLow) << VAR(refined[best].fineHigh)
+                << VAR(coarse->scale) << VAR(refined[best].atSearchBound) << VAR(refined.size()) << VAR(sharp);
+        return std::nullopt;
+    }
+
+    const ScanHit& fine = refined[best].hit;
     Viewport vp;
-    vp.scale = fine->scale;
+    vp.scale = fine.scale;
     vp.roiOrigin = cv::Point2d(roiRect.x, roiRect.y);
-    vp.baseOrigin = cv::Point2d(window.x + fine->loc.x, window.y + fine->loc.y);
+    vp.baseOrigin = cv::Point2d(refined[best].origin.x + fine.loc.x, refined[best].origin.y + fine.loc.y);
     vp.roiSize = roiRect.size();
-    vp.score = fine->score;
+    vp.score = fine.score;
     vp.delta = delta;
-    vp.psr = fine->psr;
+    vp.psr = fine.psr;
     vp.voteGrid = voteGrid;
     vp.fogRatio = mask.fogRatio;
 
     LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y) << VAR(vp.score)
-            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid) << VAR(vp.fogRatio);
+            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid) << VAR(vp.fogRatio) << VAR(cfg.scaleMin) << VAR(cfg.scaleMax)
+            << VAR(refined[best].atSearchBound) << VAR(refined.size()) << VAR(sharp);
     return vp;
 }
 
