@@ -35,21 +35,6 @@
             }
         }
     },
-    "LevelUpOperatorSearchSwipeLeft": {
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    45,
-                    425
-                ],
-                "end": [
-                    45,
-                    300
-                ]
-            }
-        }
-    },
     "LevelUpOperatorSearchFinished": {
         "recognition": {
             "param": {
