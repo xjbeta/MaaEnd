@@ -231,8 +231,15 @@
             "__AutoEcoFarmRanchPanelReady"
         ]
     },
+    // 牧场产出是一批一批刷的：第一次存仓只带走当时已就绪的那批，要再等约 10 秒才会刷出下一批。
+    // 2026-11-08 04:31:51 那次牧场只存了 1 次就收尾（同一轮两个农植机各存了 5 次、出 3 个奖励页），
+    // 所以牧场改为和农植机同一条循环：存仓 → 奖励页 → 等 10 秒
+    // （__AutoEcoFarmRanchStoreCooldown）→ 回到面板再存一次，直到存仓不再出奖励页。
+    // max_hit 只作循环上限：第 5 次之后 max_hit reached 会让 __AutoEcoFarmCollectPanel 落到
+    // __AutoEcoFarmFinishFacility，正常收尾。
     "__AutoEcoFarmStoreRanch": {
-        "desc": "祀的画牧场存仓",
+        "desc": "祀的画牧场存仓，收完后等 10 秒再收下一批",
+        "max_hit": 5,
         "recognition": "And",
         "all_of": [
             "__AutoEcoFarmRanchPanel",
@@ -255,9 +262,58 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmFinishRewardConfirm",
-            "__AutoEcoFarmFinishFacility"
+            "__AutoEcoFarmRanchRewardConfirm",
+            "__AutoEcoFarmCollectPanel"
         ]
+    },
+    // 存仓奖励关闭后统一等 10 秒再回面板：作物与牧场都是约 10 秒才刷下一批。
+    // 牧场仍保留单独的 __AutoEcoFarmRanchRewardConfirm / __AutoEcoFarmRanchStoreCooldown，
+    // 只为 focus 文案区分「等待牧场产出」与「等待农植机采集」，冷却时长与公共分支一致。
+    "__AutoEcoFarmRanchRewardConfirm": {
+        "desc": "通过产物过滤奖励子任务处理牧场奖励页",
+        "recognition": "And",
+        "all_of": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "__AutoEcoFarmNoticeRewardsConfirm"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRanchStoreCooldown"
+        ]
+    },
+    "__AutoEcoFarmRanchStoreCooldown": {
+        "desc": "牧场存仓奖励关闭后等待 10 秒",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CountDownAction",
+                "custom_action_param": {
+                    "duration": 10,
+                    "duration_type": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoEcoFarm.focus.ranch_store_cooldown"
+        }
     },
     "__AutoEcoFarmRanchPanelReady": {
         "desc": "确认牧场面板已打开并等待画面稳定",
@@ -558,14 +614,14 @@
         ]
     },
     "__AutoEcoFarmStoreCooldown": {
-        "desc": "存仓奖励关闭后等待 5 秒",
+        "desc": "存仓奖励关闭后等待 10 秒",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "CountDownAction",
                 "custom_action_param": {
-                    "duration": 5,
+                    "duration": 10,
                     "duration_type": 1
                 }
             }
