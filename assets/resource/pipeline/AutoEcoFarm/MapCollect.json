@@ -158,17 +158,6 @@
     "__AutoEcoFarmRanchExecute": {
         "desc": "开始处理祀的画 - 牧场",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterWorldWulingWulingCityFangxingAvenue"
-                    ]
-                }
-            }
-        },
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreRanch"
@@ -292,6 +281,54 @@
             "__AutoEcoFarmStoreRanch"
         ]
     },
+    // 农牧奖励页固定只出产物（优质鳞肉/鳞肉/优质禽蛋/禽蛋/优质兽奶/兽奶/优质肉块/肉块）。
+    // 公共节点 SceneNoticeRewardsConfirm 的 AddItemData 不带过滤，按 Rewards 默认过滤器
+    // （Isolate:* / ValuableDepot:*）在全部 353 个模板里穷举，既认不到 Normal:Product 的产物，
+    // 又慢：2026-11-06 06:23:58.7→06:24:34.9 耗时 36s、8 个格子全部 below-subpixel-threshold；
+    // 2026-11-08 02:00:11.4→02:00:47.5 又耗 36s（hit_count=0、item_filters=[]）。
+    // 本节点只把候选限定为 Normal:Product（153 个模板），记账与关闭仍走公共点击节点。
+    // 农场内所有奖励页子任务都必须走本节点，不要再直接 SubTask 公共节点。
+    "__AutoEcoFarmNoticeRewardsConfirm": {
+        "desc": "农牧奖励界面：按产物类别识别并记账，再交给公共节点关闭面板",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InNoticeRewards",
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {
+                    "item_filters": [
+                        "Normal:Product"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneNoticeRewardsConfirmClick"
+        ]
+    },
     "__AutoEcoFarmFinishRewardConfirm": {
         "desc": "通过公共奖励子任务处理收尾奖励页，完成后关闭面板或确认已回地图",
         "recognition": "And",
@@ -305,7 +342,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "SceneNoticeRewardsConfirm"
+                        "__AutoEcoFarmNoticeRewardsConfirm"
                     ]
                 }
             }
@@ -492,7 +529,7 @@
         ]
     },
     "__AutoEcoFarmRewardConfirm": {
-        "desc": "通过公共奖励子任务处理奖励页，完成后检查同一装置的新产出",
+        "desc": "通过产物过滤奖励子任务处理奖励页，完成后检查同一装置的新产出",
         "recognition": "And",
         "all_of": [
             "SceneNoticeRewardsConfirm"
@@ -504,7 +541,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "SceneNoticeRewardsConfirm"
+                        "__AutoEcoFarmNoticeRewardsConfirm"
                     ]
                 }
             }
@@ -573,12 +610,13 @@
         "rate_limit": 0,
         "next": [
             "__AutoEcoFarmRecoverRewardPage",
+            "__AutoEcoFarmRecoverFilterClose",
             "__AutoEcoFarmRecoverClosePanel",
             "__AutoEcoFarmFacilityClosed"
         ]
     },
     "__AutoEcoFarmRecoverRewardPage": {
-        "desc": "收掉残留的奖励页",
+        "desc": "收掉残留的奖励页（走产物过滤子任务，避免公共节点的全量穷举）",
         "recognition": "And",
         "all_of": [
             "SceneNoticeRewardsConfirm"
@@ -590,10 +628,54 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "SceneNoticeRewardsConfirm"
+                        "__AutoEcoFarmNoticeRewardsConfirm"
                     ]
                 }
             }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRecoverFilterClose",
+            "__AutoEcoFarmRecoverClosePanel",
+            "__AutoEcoFarmFacilityClosed"
+        ]
+    },
+    // 标记显示管理面板属于地图 UI：展开时遮挡 InMapAny 依赖的左上角提示框
+    // （roi [0,0,220,100]），__AutoEcoFarmFacilityClosed 永远不成立。
+    // 筛选流程失败时面板通常仍在展开状态，缺此分支 recovery 只会空转到超时。
+    "__AutoEcoFarmRecoverFilterClose": {
+        "desc": "收起残留的标记显示管理面板",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEcoFarmFilterClose"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                // 与 __AutoEcoFarmFilterClose 相同：点面板标题右侧的空白处收起
+                "target_offset": [
+                    500,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                365,
+                690
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -626,6 +708,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__AutoEcoFarmRecoverFilterClose",
             "__AutoEcoFarmFacilityClosed"
         ]
     },
