@@ -495,7 +495,9 @@ std::optional<Viewport> ScanViewport(
         std::max(1, static_cast<int>(std::lround(cfg.voteMinBlockSide / static_cast<double>(down)))),
         &coarseRungs);
     if (!coarse) {
-        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone) << VAR(voteGrid);
+        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone) << VAR(voteGrid)
+                << VAR(coarseLadder.empty() ? 0.0 : coarseLadder.front()) << VAR(coarseLadder.empty() ? 0.0 : coarseLadder.back())
+                << VAR(cfg.coarseRatio);
         return std::nullopt;
     }
 
@@ -533,9 +535,22 @@ std::optional<Viewport> ScanViewport(
         voteGrid,
         cfg.voteMinBlockSide);
     if (!fine) {
-        LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone) << VAR(voteGrid);
+        LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone) << VAR(voteGrid)
+                << VAR(fineLadder.empty() ? 0.0 : fineLadder.front()) << VAR(fineLadder.empty() ? 0.0 : fineLadder.back())
+                << VAR(coarse->scale);
         return std::nullopt;
     }
+
+    // 解落在细解阶梯的端点上，说明真值被搜索范围切掉了：同一个低尺度反复出现时，
+    // 得先分清是"到了下界"还是"这就是真解"，否则照着日志改阈值只会改错方向。
+    // 钉了尺度时整条阶梯只有一个值，端点没有意义，此时一律不计
+    const double fineLow = fineLadder.empty() ? 0.0 : fineLadder.front();
+    const double fineHigh = fineLadder.empty() ? 0.0 : fineLadder.back();
+    const double fineStep = fineLadder.size() > 1 ? fineLadder[1] - fineLadder[0] : 0.0;
+    const bool laddered = !cfg.scaleHint && fineStep > 0.0;
+    const bool atScaleMin = laddered && std::abs(fine->scale - fineLow) <= fineStep * 0.5;
+    const bool atScaleMax = laddered && std::abs(fine->scale - fineHigh) <= fineStep * 0.5;
+    const bool atSearchBound = atScaleMin || atScaleMax;
 
     // 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
     // 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
@@ -548,8 +563,9 @@ std::optional<Viewport> ScanViewport(
     const double delta = fine->score - rivalBest;
 
     if (fine->score < cfg.minScore || delta < cfg.minDelta) {
-        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr) << VAR(fine->scale)
-                << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid) << VAR(mask.fogRatio);
+        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(rivalBest) << VAR(fine->psr)
+                << VAR(fine->scale) << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid) << VAR(mask.fogRatio) << VAR(cfg.scaleMin)
+                << VAR(cfg.scaleMax) << VAR(fineLow) << VAR(fineHigh) << VAR(coarse->scale) << VAR(atSearchBound);
         return std::nullopt;
     }
 
@@ -565,7 +581,8 @@ std::optional<Viewport> ScanViewport(
     vp.fogRatio = mask.fogRatio;
 
     LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y) << VAR(vp.score)
-            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid) << VAR(vp.fogRatio);
+            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid) << VAR(vp.fogRatio) << VAR(cfg.scaleMin) << VAR(cfg.scaleMax)
+            << VAR(atSearchBound);
     return vp;
 }
 

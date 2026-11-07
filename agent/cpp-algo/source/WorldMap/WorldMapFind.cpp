@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <optional>
 #include <random>
@@ -107,6 +108,10 @@ constexpr int kPinStreak = 3;
 // 视口解不出来时同一张静止画面重截多少次结果都逐位一样，得先把地图挪开换个画面
 constexpr int kMaxNudges = 6;
 constexpr double kNudgeRatio = 0.35;
+
+// 挪图之后画面几乎没变（不只是逐位相同）：这根轴顶到了边界，或者触控被起手点上的控件吃了。
+// 地图真挪动过时这个差值以十计，压缩与动画噪声只在小数点后两位，留一点余量放过噪声
+constexpr double kStillFrameDiff = 0.05;
 
 // 缩放档位是视口求解的未知量，进来先压到最小钉死。按钮坐标各端不同，
 // 交给 pipeline 的 SceneMapZoomOutWithoutReco 处理，cpp 只触发一次子任务
@@ -214,6 +219,53 @@ bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat
     return !out->empty();
 }
 
+// 一帧的低频指纹：压成 64×36 的均值格再逐格哈希。画面冻结时前后的读数逐位相同，
+// 这是判断"点了没反应"到底卡在截屏还是卡在操作的最直接证据。指纹只进日志，不参与任何判定
+struct FramePrint
+{
+    cv::Mat cells;
+    std::uint64_t hash = 0;
+};
+
+FramePrint Fingerprint(const cv::Mat& screen)
+{
+    FramePrint print;
+    if (screen.empty()) {
+        return print;
+    }
+
+    cv::Mat gray;
+    if (screen.channels() == 4) {
+        cv::cvtColor(screen, gray, cv::COLOR_BGRA2GRAY);
+    }
+    else if (screen.channels() == 3) {
+        cv::cvtColor(screen, gray, cv::COLOR_BGR2GRAY);
+    }
+    else {
+        gray = screen;
+    }
+    cv::resize(gray, print.cells, cv::Size(64, 36), 0.0, 0.0, cv::INTER_AREA);
+
+    print.hash = 1'469'598'103'934'665'603ULL;
+    for (int y = 0; y < print.cells.rows; ++y) {
+        const uchar* row = print.cells.ptr<uchar>(y);
+        for (int x = 0; x < print.cells.cols; ++x) {
+            print.hash ^= row[x];
+            print.hash *= 1'099'511'628'211ULL;
+        }
+    }
+    return print;
+}
+
+// 两帧指纹的平均逐格差值。无上一帧时返回 -1，让日志里一眼分得出"还没比过"与"完全没变"
+double FrameDiff(const cv::Mat& a, const cv::Mat& b)
+{
+    if (a.empty() || b.empty() || a.size() != b.size()) {
+        return -1.0;
+    }
+    return cv::norm(a, b, cv::NORM_L1) / static_cast<double>(a.total());
+}
+
 void ZoomMapOut(MaaContext* context)
 {
     if (MaaContextRunTask(context, kZoomOutNode, "{}") == MaaInvalidId) {
@@ -255,7 +307,17 @@ cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::P
 
     LogInfo << "WorldMap: dragging map" << VAR(from.x) << VAR(from.y) << VAR(to.x) << VAR(to.y) << VAR(duration);
     const MaaCtrlId swipe_id = MaaControllerPostSwipe(controller, from.x, from.y, to.x, to.y, duration);
-    MaaControllerWait(controller, swipe_id);
+    // 手势没被控制器接住时，后面的帧差会显示画面没动。把这一步的结果也记下来，
+    // 免得把"手势没发出去"误判成"地图到了边界"
+    if (swipe_id == MaaInvalidId) {
+        LogWarn << "WorldMap: swipe was not accepted by the controller" << VAR(from.x) << VAR(from.y) << VAR(to.x) << VAR(to.y);
+    }
+    else {
+        const MaaStatus swipe_status = MaaControllerWait(controller, swipe_id);
+        if (swipe_status != MaaStatus_Succeeded) {
+            LogWarn << "WorldMap: swipe did not succeed" << VAR(swipe_id) << VAR(swipe_status) << VAR(duration);
+        }
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(kSettleMillis));
     return { static_cast<double>(to.x - from.x), static_cast<double>(to.y - from.y) };
 }
@@ -389,6 +451,10 @@ struct MapView
     double gain = 1.0;
     int stallX = 0;
     int stallY = 0;
+    // 上一帧的指纹，用来判断这一拍画面到底动没动
+    std::optional<FramePrint> lastFrame;
+    // 刚为「解不出视口」挪过图，下一帧要确认这一挪是否真挪动了画面。-1 表示没有待确认的挪图
+    int pendingNudge = -1;
 };
 
 // 一次调用里所有候选共用的东西
@@ -408,10 +474,24 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
     const FindParam& param = *session.param;
     MapView& view = session.view;
     const bool wantUnlocked = param.state != "locked";
+    // 待确认的挪图只属于发起它的那一次求解，不能顺延到下一个候选
+    view.pendingNudge = -1;
 
     int attempt = 0;
     int pans = 0;
     int nudges = 0;
+
+    // 解不出视口就把地图挪开换个画面。方向按右→下→左→上轮换：同一方向反复发，
+    // 碰到边界或起手点压在图标上时永远挪不动，换个方向才有机会
+    auto nudgeMap = [&](const cv::Rect& safe) {
+        const cv::Point2d moved = DragMap(session.controller, safe, NudgeDelta(safe, view.issued, nudges));
+        ++nudges;
+        view.issued = moved;
+        view.pendingNudge = nudges;
+        if (std::hypot(moved.x, moved.y) < 1.0) {
+            ++attempt;
+        }
+    };
 
     while (attempt < param.max_attempts) {
         if (view.screen.empty()) {
@@ -420,8 +500,33 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
                 std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
                 continue;
             }
+            // 每一帧都留指纹。画面不动时视口、图标、拖动给出的结果逐位重复，
+            // 只有指纹能分清"拖动没兑现"和"截屏根本没刷新"——这两件事的修法完全不同
+            const FramePrint frame = Fingerprint(view.screen);
+            const double frameDiff = view.lastFrame ? FrameDiff(frame.cells, view.lastFrame->cells) : -1.0;
+            LogInfo << "WorldMap: captured frame" << VAR(frame.hash) << VAR(frameDiff) << VAR(view.issued.x) << VAR(view.issued.y);
+            if (frameDiff == 0.0 && std::hypot(view.issued.x, view.issued.y) >= kPinCommand) {
+                LogWarn << "WorldMap: the screen did not change after the map drag" << VAR(frame.hash) << VAR(view.issued.x)
+                        << VAR(view.issued.y) << VAR(view.gain) << VAR(view.stallX) << VAR(view.stallY) << VAR(nudges) << VAR(pans);
+            }
+            view.lastFrame = frame;
             // 换了画面，上一次解出来的视口跟着作废
             view.viewport.reset();
+
+            // 上一拍是解不出视口之后挪的地图：这一挪要是压根没动画面，就换个方向再挪一次。
+            // 同一张画面重解一遍，视口判据会逐位重复，整整一轮都是白等
+            if (view.pendingNudge >= 0) {
+                const int axis = view.pendingNudge;
+                view.pendingNudge = -1;
+                if (frameDiff >= 0.0 && frameDiff < kStillFrameDiff && nudges < kMaxNudges) {
+                    const cv::Rect still = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, kIconMargin);
+                    LogWarn << "WorldMap: the map did not move after the nudge, trying the next direction" << VAR(axis)
+                            << VAR(frameDiff) << VAR(view.issued.x) << VAR(view.issued.y) << VAR(nudges);
+                    view.screen.release();
+                    nudgeMap(still);
+                    continue;
+                }
+            }
         }
 
         const cv::Rect safe = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, kIconMargin);
@@ -454,12 +559,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
                     continue;
                 }
                 LogInfo << "WorldMap: viewport unsolved, nudging the map" << VAR(nudges);
-                const cv::Point2d moved = DragMap(session.controller, safe, NudgeDelta(safe, view.issued, nudges));
-                ++nudges;
-                view.issued = moved;
-                if (std::hypot(moved.x, moved.y) < 1.0) {
-                    ++attempt;
-                }
+                nudgeMap(safe);
                 continue;
             }
             // 上一拍发出的位移兑现了多少：不动的那根轴是顶到了地图边界，兑现不足的比例现补回去
@@ -539,7 +639,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             if (out_box != nullptr) {
                 *out_box = PointBox(expected);
             }
-            LogInfo << "WorldMap: located" << VAR(param.zone) << VAR(expected.x) << VAR(expected.y);
+            LogInfo << "WorldMap: located" << VAR(param.zone) << VAR(expected.x) << VAR(expected.y) << VAR(viewport.scale);
             return Probe::Hit;
         }
 
@@ -587,7 +687,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         }
 
         LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(index) << VAR(expected.x) << VAR(expected.y)
-                << VAR(viewport.voteGrid) << VAR(viewport.fogRatio);
+                << VAR(viewport.scale) << VAR(viewport.voteGrid) << VAR(viewport.fogRatio);
         view.screen.release();
         std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
     }
