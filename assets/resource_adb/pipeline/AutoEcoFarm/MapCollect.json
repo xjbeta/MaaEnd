@@ -34,16 +34,28 @@
         }
     },
     // ADB：避开相邻设施的重叠触发区，将点击落点移至牧场图标底部黄条右侧。
+    // 低帧率下点击可能被吞（11-05 04:35:22 同一点击 20s 未打开面板），改为同点重试，
+    // 牧场面板或重叠候选菜单任一出现即停。
     "__AutoEcoFarmFindRanch": {
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
-                "target_offset": [
-                    14,
-                    11,
-                    0,
-                    0
-                ]
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "action_param": {
+                        "target_offset": [
+                            14,
+                            11,
+                            0,
+                            0
+                        ]
+                    },
+                    "wait_nodes": [
+                        "__AutoEcoFarmRanchPanelReady",
+                        "__AutoEcoFarmChooseRanch"
+                    ]
+                }
             }
         },
         "post_wait_freezes": {

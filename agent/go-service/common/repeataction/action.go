@@ -20,6 +20,9 @@ type repeatUntilFoundParam struct {
 	// Action is a built-in action type (e.g. "Click"). Mutually exclusive
 	// with CustomAction; exactly one of them must be provided.
 	Action string `json:"action"`
+	// ActionParam is forwarded to the built-in action as its param, so the
+	// repeated action keeps the same target/offset as the node it replaces.
+	ActionParam json.RawMessage `json:"action_param,omitempty"`
 	// CustomAction repeats a registered custom action (e.g. "AutoAltClickAction").
 	CustomAction string `json:"custom_action,omitempty"`
 	// CustomActionParam is forwarded to the custom action as-is.
@@ -31,6 +34,7 @@ type repeatUntilFoundParam struct {
 
 type repeatUntilNotFoundParam struct {
 	Action            string          `json:"action"`
+	ActionParam       json.RawMessage `json:"action_param,omitempty"`
 	CustomAction      string          `json:"custom_action,omitempty"`
 	CustomActionParam json.RawMessage `json:"custom_action_param,omitempty"`
 	WaitNode          string          `json:"wait_node"`
@@ -49,7 +53,7 @@ func (a *RepeatUntilFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		log.Error().Err(err).Str("component", "RepeatUntilFoundAction").Msg("failed to parse params")
 		return false
 	}
-	actionNode, ok := buildActionNode(p.Action, p.CustomAction, p.CustomActionParam)
+	actionNode, ok := buildActionNode(p.Action, p.ActionParam, p.CustomAction, p.CustomActionParam)
 	if !ok {
 		log.Error().Str("component", "RepeatUntilFoundAction").Msg("either action or custom_action is required")
 		return false
@@ -72,7 +76,7 @@ func (a *RepeatUntilNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	if p.WaitNode != "" {
 		waitNodes = []string{p.WaitNode}
 	}
-	actionNode, ok := buildActionNode(p.Action, p.CustomAction, p.CustomActionParam)
+	actionNode, ok := buildActionNode(p.Action, p.ActionParam, p.CustomAction, p.CustomActionParam)
 	if !ok {
 		log.Error().Str("component", "RepeatUntilNotFoundAction").Msg("either action or custom_action is required")
 		return false
@@ -82,8 +86,9 @@ func (a *RepeatUntilNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 
 // buildActionNode constructs the v2 action override for the inner node. When
 // customAction is set, it wraps the custom action (and its param); otherwise it
-// falls back to the built-in action type. Returns false when neither is given.
-func buildActionNode(action, customAction string, customActionParam json.RawMessage) (map[string]any, bool) {
+// falls back to the built-in action type, forwarding actionParam when given.
+// Returns false when neither action nor customAction is given.
+func buildActionNode(action string, actionParam json.RawMessage, customAction string, customActionParam json.RawMessage) (map[string]any, bool) {
 	if customAction != "" {
 		param := map[string]any{"custom_action": customAction}
 		if len(customActionParam) > 0 {
@@ -97,7 +102,18 @@ func buildActionNode(action, customAction string, customActionParam json.RawMess
 		return map[string]any{"type": "Custom", "param": param}, true
 	}
 	if action != "" {
-		return map[string]any{"type": action, "param": map[string]any{}}, true
+		param := map[string]any{}
+		// 内置动作的参数（例如 Click 的 target_offset）必须跟着一起转发，
+		// 否则重试点击会退回识别框中心，可能点到相邻目标。
+		if len(actionParam) > 0 {
+			var v map[string]any
+			if err := json.Unmarshal(actionParam, &v); err != nil {
+				log.Warn().Err(err).Str("action", action).Msg("invalid action_param, repeating the action without param")
+			} else if v != nil {
+				param = v
+			}
+		}
+		return map[string]any{"type": action, "param": param}, true
 	}
 	return nil, false
 }
@@ -152,6 +168,10 @@ func runRepeatUntil(
 		// Within intervalMs, poll recognition every pollIntervalMs so a fast UI
 		// transition can succeed without waiting out the full window.
 		deadline := time.Now().Add(time.Duration(intervalMs) * time.Millisecond)
+		// wait node 可能以本节点为 roi（PreTask 引用）。当前节点的识别结果要等
+		// 动作返回后才写入运行时缓存，这里在等待窗口的首帧刷新一次，让引用
+		// 解析到当前画面，而不是上一次运行留下的识别框。
+		seedPending := arg.CurrentTaskName != ""
 		for {
 			if ctx.GetTasker().Stopping() {
 				return false
@@ -177,6 +197,13 @@ func runRepeatUntil(
 			if err != nil || img == nil {
 				log.Warn().Err(err).Str("component", component).Msg("cache image failed")
 				continue
+			}
+
+			if seedPending {
+				seedPending = false
+				if _, err := ctx.RunRecognition(arg.CurrentTaskName, img); err != nil {
+					log.Warn().Err(err).Str("component", component).Str("node", arg.CurrentTaskName).Msg("refresh current node failed")
+				}
 			}
 
 			if untilFound {
