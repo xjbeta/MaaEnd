@@ -1,23 +1,4 @@
 {
-    "ClickH": {
-        "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
-        "recognition": "TemplateMatch",
-        "roi": [
-            168,
-            113,
-            101,
-            95
-        ],
-        "template": [
-            "Baker/BakerIcon.png",
-            "Baker/BakerIcon2.png"
-        ],
-        "action": "Click",
-        "next": [
-            "BakerSwitchMsg",
-            "BakerEntry" // ClickTopTak 若是没匹配到，则回到 BakerEntry]
-        ]
-    },
     "BakerSwitchMsg": {
         "desc": "切换到会话信息界面",
         "recognition": "TemplateMatch",

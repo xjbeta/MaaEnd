@@ -16,19 +16,6 @@
             27
         ]
     },
-    // +/− 按钮中心连线的中点：x = 1213 + 27/2 ≈ 1226，y = (226.5 + 453.5) / 2 = 340
-    "__ScenePrivateMapZoomNonExtremeFromZoomIn": {
-        "target": [
-            1226,
-            340
-        ]
-    },
-    "__ScenePrivateMapZoomNonExtremeFromZoomOut": {
-        "target": [
-            1226,
-            340
-        ]
-    },
     // ADB 的 MapOverviewEnter.png 是 236x47 的整行截图（左侧还带着行首左箭头），Click 默认在识别框内
     // 按正态分布取随机点，落到 x≈1009 的左箭头/空白处会被游戏吞掉：2026-11-05 04:22:27 点击 [1009,638]
     // 后，__ScenePrivateMapAnyEnterMapOverviewSuccess 连续 21 次识别失败，资源回收站任务失败；同一轮里
