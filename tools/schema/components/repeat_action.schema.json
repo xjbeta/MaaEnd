@@ -59,6 +59,12 @@
                         "custom_action_param": true,
                         "repeat_count": true,
                         "interval_ms": true,
+                        "refresh_current_recognition": {
+                            "title": "Refresh Current Recognition",
+                            "description": "Whether to re-run the triggering node's own recognition before the first poll, so wait nodes referencing its box resolve to the current frame. Default true; set false for expensive recognition (e.g. MapFind).",
+                            "type": "boolean",
+                            "default": true
+                        },
                         "wait_nodes": {
                             "title": "Wait Nodes",
                             "description": "Recognition nodes checked after each attempt; success if any hits.",

@@ -127,6 +127,7 @@ Both are implemented in `agent/go-service/common/repeataction`. They repeatedly 
     - `interval_ms?: int`: Wait window after each action, in milliseconds. Within the window, screencap/recognize every `500ms` and succeed early once the condition is met. Defaults to `3000` when omitted or `0`. Negative values are invalid.
 - `RepeatUntilFoundAction` extra:
     - `wait_nodes: string[]`: Pipeline node names to wait for. Required.
+    - `refresh_current_recognition?: bool`: Whether to re-run the triggering node's own recognition before the first poll, so a wait node that references its box (as a PreTask `roi`) resolves to the current frame. Defaults to `true`; set `false` for nodes whose recognition is expensive (e.g. `MapFind`) and whose wait nodes do not reference this node.
 - `RepeatUntilNotFoundAction` extra:
     - `wait_node: string`: Single Pipeline node name to wait until it disappears. Required.
 

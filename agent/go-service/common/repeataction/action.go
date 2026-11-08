@@ -30,6 +30,23 @@ type repeatUntilFoundParam struct {
 	WaitNodes         []string        `json:"wait_nodes"`
 	RepeatCount       int             `json:"repeat_count,omitempty"`
 	IntervalMs        int64           `json:"interval_ms,omitempty"`
+	// RefreshCurrentRecognition re-runs the current node's recognition before the
+	// first poll, so wait nodes that reference this node's box (as a PreTask roi)
+	// resolve to the current frame instead of a cached one. Omit or true keeps the
+	// previous behavior; false is for nodes with expensive recognition (e.g.
+	// MapFind) whose wait nodes do not reference this node.
+	RefreshCurrentRecognition *bool `json:"refresh_current_recognition,omitempty"`
+}
+
+// repeatOptions carries the per-call knobs of runRepeatUntil.
+type repeatOptions struct {
+	repeatCount int
+	intervalMs  int64
+	// untilFound selects the success condition: true means any wait node hitting,
+	// false means the single wait node missing.
+	untilFound bool
+	// skipSeed skips the pre-poll refresh of the current node's recognition.
+	skipSeed bool
 }
 
 type repeatUntilNotFoundParam struct {
@@ -58,7 +75,12 @@ func (a *RepeatUntilFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		log.Error().Str("component", "RepeatUntilFoundAction").Msg("either action or custom_action is required")
 		return false
 	}
-	return runRepeatUntil(ctx, arg, "RepeatUntilFoundAction", actionNode, p.WaitNodes, p.RepeatCount, p.IntervalMs, true)
+	return runRepeatUntil(ctx, arg, "RepeatUntilFoundAction", actionNode, p.WaitNodes, repeatOptions{
+		repeatCount: p.RepeatCount,
+		intervalMs:  p.IntervalMs,
+		untilFound:  true,
+		skipSeed:    p.RefreshCurrentRecognition != nil && !*p.RefreshCurrentRecognition,
+	})
 }
 
 // RepeatUntilNotFoundAction repeats a built-in or custom action until the wait node misses.
@@ -81,7 +103,10 @@ func (a *RepeatUntilNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		log.Error().Str("component", "RepeatUntilNotFoundAction").Msg("either action or custom_action is required")
 		return false
 	}
-	return runRepeatUntil(ctx, arg, "RepeatUntilNotFoundAction", actionNode, waitNodes, p.RepeatCount, p.IntervalMs, false)
+	return runRepeatUntil(ctx, arg, "RepeatUntilNotFoundAction", actionNode, waitNodes, repeatOptions{
+		repeatCount: p.RepeatCount,
+		intervalMs:  p.IntervalMs,
+	})
 }
 
 // buildActionNode constructs the v2 action override for the inner node. When
@@ -124,30 +149,28 @@ func runRepeatUntil(
 	component string,
 	actionNode map[string]any,
 	waitNodes []string,
-	repeatCount int,
-	intervalMs int64,
-	untilFound bool,
+	opts repeatOptions,
 ) bool {
-	if len(waitNodes) == 0 || intervalMs < 0 {
+	if len(waitNodes) == 0 || opts.intervalMs < 0 {
 		log.Error().
 			Str("component", component).
 			Int("wait_nodes", len(waitNodes)).
-			Int64("interval_ms", intervalMs).
+			Int64("interval_ms", opts.intervalMs).
 			Msg("invalid params")
 		return false
 	}
 
-	if repeatCount <= 0 {
-		repeatCount = defaultRepeatCount
+	if opts.repeatCount <= 0 {
+		opts.repeatCount = defaultRepeatCount
 	}
-	if intervalMs == 0 {
-		intervalMs = defaultIntervalMs
+	if opts.intervalMs == 0 {
+		opts.intervalMs = defaultIntervalMs
 	}
 
 	ctrl := ctx.GetTasker().GetController()
 	poll := time.Duration(pollIntervalMs) * time.Millisecond
 
-	for i := 0; i < repeatCount; i++ {
+	for i := 0; i < opts.repeatCount; i++ {
 		if ctx.GetTasker().Stopping() {
 			return false
 		}
@@ -167,11 +190,12 @@ func runRepeatUntil(
 
 		// Within intervalMs, poll recognition every pollIntervalMs so a fast UI
 		// transition can succeed without waiting out the full window.
-		deadline := time.Now().Add(time.Duration(intervalMs) * time.Millisecond)
+		deadline := time.Now().Add(time.Duration(opts.intervalMs) * time.Millisecond)
 		// wait node 可能以本节点为 roi（PreTask 引用）。当前节点的识别结果要等
 		// 动作返回后才写入运行时缓存，这里在等待窗口的首帧刷新一次，让引用
-		// 解析到当前画面，而不是上一次运行留下的识别框。
-		seedPending := arg.CurrentTaskName != ""
+		// 解析到当前画面，而不是上一次运行留下的识别框。识别代价高的节点
+		// （如 MapFind）可显式关闭这次刷新。
+		seedPending := !opts.skipSeed && arg.CurrentTaskName != ""
 		for {
 			if ctx.GetTasker().Stopping() {
 				return false
@@ -206,7 +230,7 @@ func runRepeatUntil(
 				}
 			}
 
-			if untilFound {
+			if opts.untilFound {
 				for _, node := range waitNodes {
 					if detail, err := ctx.RunRecognition(node, img); err == nil && detail != nil && detail.Hit {
 						return true
