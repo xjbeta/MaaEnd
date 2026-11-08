@@ -127,6 +127,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `interval_ms?: int`：每次动作后的等待窗口（毫秒）；窗口内每 `500ms` 截图识别一次，条件满足则提前成功；省略或 `0` 时默认 `3000`；负值非法。
 - `RepeatUntilFoundAction` 额外参数：
     - `wait_nodes: string[]`：等待出现的 Pipeline 节点名列表，必填。
+    - `refresh_current_recognition?: bool`：首次轮询前是否重跑触发本 Action 的节点自身的识别，使以本节点识别框为 `roi`（PreTask 引用）的 wait node 解析到当前画面。默认 `true`；识别代价高（如 `MapFind`）且 wait node 不引用本节点时可置 `false`。
 - `RepeatUntilNotFoundAction` 额外参数：
     - `wait_node: string`：等待消失的 Pipeline 节点名，必填；一次只支持一个节点。
 
