@@ -103,6 +103,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__AutoEcoFarmFilterFarmingChecked",
             "__AutoEcoFarmFilterSelectFarming",
             "__AutoEcoFarmFilterNoProgress",
             "__AutoEcoFarmFilterScrollDown"
@@ -166,6 +167,33 @@
         "rate_limit": 0,
         "next": [
             "__AutoEcoFarmFilterScan"
+        ]
+    },
+    // 农牧相关被勾选后整行反色（浅色底 + 深色图标），未选中态模板 FarmingFilter.png 永远命中不了。
+    // 游戏会记住上一轮的勾选状态：本轮牧场筛选在「清空选中」后，农牧相关仍保持选中，
+    // 单纯找未选中图标会一直滑到列表底部然后误报失败。这里把「已选中」当作目标状态直接结束筛选。
+    "__AutoEcoFarmFilterFarmingChecked": {
+        "desc": "农牧相关已处于选中态时跳过勾选，直接收起面板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    65,
+                    160,
+                    570
+                ],
+                "template": [
+                    "AutoEcoFarm/FarmingFilterChecked.png"
+                ],
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterClose"
         ]
     },
     // Win32：农牧相关与装饰物品图标相同，roi 仅覆盖左列，排除右列的装饰物品。
@@ -240,8 +268,10 @@
             "__AutoEcoFarmFilterClose"
         ]
     },
+    // 面板外侧的空白点偶尔会被吞掉（实测点 (594,43) 一次点击未收起面板，随后只能干等到超时），
+    // 这里复用传送锚点的做法：点击后轮询 InMapAny，未收起就补点。
     "__AutoEcoFarmFilterClose": {
-        "desc": "识别筛选面板标题后点击外侧收起面板",
+        "desc": "识别筛选面板标题后点击外侧收起面板，未收起则补点",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -262,14 +292,25 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
-                "target_offset": [
-                    500,
-                    0,
-                    0,
-                    0
-                ]
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "action_param": {
+                        "target_offset": [
+                            500,
+                            0,
+                            0,
+                            0
+                        ]
+                    },
+                    "wait_nodes": [
+                        "InMapAny"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000
+                }
             }
         },
         "post_wait_freezes": {

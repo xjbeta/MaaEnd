@@ -706,7 +706,7 @@
     // （roi [0,0,220,100]），__AutoEcoFarmFacilityClosed 永远不成立。
     // 筛选流程失败时面板通常仍在展开状态，缺此分支 recovery 只会空转到超时。
     "__AutoEcoFarmRecoverFilterClose": {
-        "desc": "收起残留的标记显示管理面板",
+        "desc": "收起残留的标记显示管理面板，未收起则补点",
         "recognition": {
             "type": "And",
             "param": {
@@ -718,15 +718,26 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
-                // 与 __AutoEcoFarmFilterClose 相同：点面板标题右侧的空白处收起
-                "target_offset": [
-                    500,
-                    0,
-                    0,
-                    0
-                ]
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "action_param": {
+                        // 与 __AutoEcoFarmFilterClose 相同：点面板标题右侧的空白处收起
+                        "target_offset": [
+                            500,
+                            0,
+                            0,
+                            0
+                        ]
+                    },
+                    "wait_nodes": [
+                        "InMapAny"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000
+                }
             }
         },
         "post_wait_freezes": {
