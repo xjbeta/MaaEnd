@@ -12,7 +12,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -46,7 +63,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -80,7 +114,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -114,7 +165,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -148,7 +216,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -182,7 +267,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -216,7 +318,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -250,7 +369,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -284,7 +420,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -318,7 +471,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -352,7 +522,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -386,7 +573,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -420,7 +624,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -454,7 +675,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -488,7 +726,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -522,7 +777,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -556,7 +828,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -590,7 +879,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -624,7 +930,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -658,7 +981,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -692,7 +1032,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -726,7 +1083,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -760,7 +1134,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -794,7 +1185,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -828,7 +1236,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -862,7 +1287,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -896,7 +1338,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -930,7 +1389,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -964,7 +1440,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -998,7 +1491,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1032,7 +1542,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1066,7 +1593,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1100,7 +1644,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1134,7 +1695,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1168,7 +1746,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1202,7 +1797,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1236,7 +1848,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1270,7 +1899,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1304,7 +1950,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1338,7 +2001,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1372,7 +2052,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1406,7 +2103,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1440,7 +2154,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1474,7 +2205,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1508,7 +2256,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1542,7 +2307,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1576,7 +2358,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1610,7 +2409,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1644,7 +2460,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1678,7 +2511,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1712,7 +2562,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1746,7 +2613,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1780,7 +2664,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1814,7 +2715,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1848,7 +2766,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1882,7 +2817,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1916,7 +2868,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1950,7 +2919,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -1984,7 +2970,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2018,7 +3021,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2052,7 +3072,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2086,7 +3123,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2120,7 +3174,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2154,7 +3225,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2188,7 +3276,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2222,7 +3327,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2256,7 +3378,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2290,7 +3429,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2324,7 +3480,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2358,7 +3531,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2392,7 +3582,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2426,7 +3633,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2460,7 +3684,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2494,7 +3735,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2528,7 +3786,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2562,7 +3837,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2596,7 +3888,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2630,7 +3939,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2664,7 +3990,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2698,7 +4041,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2732,7 +4092,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2766,7 +4143,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2800,7 +4194,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2834,7 +4245,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2868,7 +4296,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2902,7 +4347,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2936,7 +4398,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -2970,7 +4449,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -3004,7 +4500,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -3038,7 +4551,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -3072,7 +4602,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -3106,7 +4653,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -3140,7 +4704,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
@@ -3174,7 +4755,24 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateMapTeleportChoose",
+                        "__ScenePrivateMapMarkerPanelClose",
+                        "__ScenePrivateMapTeleportConfirm",
+                        "__ScenePrivateMapTeleportSuccess"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000,
+                    "refresh_current_recognition": false
+                }
+            }
+        },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
