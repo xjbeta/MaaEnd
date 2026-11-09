@@ -65,6 +65,9 @@ func registerAll() {
 	// Resource Sink
 	resource.EnsureResourcePathSink()
 
+	// 诊断留证（独立扩展，接线在 diagcapture_hook.go）
+	registerDiagCapture()
+
 	// Pre-Check Custom
 	aspectratio.Register()
 	hdrcheck.Register()
