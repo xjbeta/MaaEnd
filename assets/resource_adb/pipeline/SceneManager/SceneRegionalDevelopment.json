@@ -1,0 +1,33 @@
+{
+    // 进入物资调度：点击前等面板稳定，失败重试间隔从 ~20ms 拉到 500ms，超时 20s → 25s。
+    // 依据 2026-11-11 04:33:47 武陵那次：卡片模板 1.000 命中后立刻点击，页面还在切换动画里，
+    // 之后 20 秒内 `...StockRedistributionSuccess` 每 20ms 重试一次（约 1000 次）仍未打开，
+    // 最终 AutoStockpileElasticWuling 动作失败、整个囤货任务失败。
+    // 500ms × 25s ≈ 50 次重试。
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterTargetStockRedistribution": {
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                900,
+                325,
+                100,
+                100
+            ]
+        },
+        "rate_limit": 500,
+        "timeout": 25000
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetStockRedistribution": {
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                900,
+                325,
+                100,
+                100
+            ]
+        },
+        "rate_limit": 500,
+        "timeout": 25000
+    }
+}
