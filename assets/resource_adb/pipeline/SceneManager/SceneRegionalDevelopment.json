@@ -14,8 +14,8 @@
                 100
             ]
         },
-        "rate_limit": 500,
-        "timeout": 25000
+        "timeout": 25000,
+        "rate_limit": 500
     },
     "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetStockRedistribution": {
         "pre_wait_freezes": {
@@ -27,7 +27,37 @@
                 100
             ]
         },
-        "rate_limit": 500,
-        "timeout": 25000
+        "timeout": 25000,
+        "rate_limit": 500
+    },
+    "__ScenePrivateMenuRegionalDevelopmentChangeRegionConfirm": {
+        // 确认按钮本身命中（WhiteConfirmButtonType1 0.98），点击点 [872,451] 正是按钮图标中心，
+        // 但弹窗没有关闭：2026-11-16 10:05:50 与 10:10:34 两次 `Node.Action.Succeeded` 之后
+        // 20 s 内 `UnlockClose` / 谷地成功识别每 0.6 s 重试全败，任务失败。
+        // 与物资调度同型——页面切换动画未结束就点击，点击被吞掉。这里先等确认条冻结，
+        // 再用「点击 → 等后续界面 → 没等到重点」兜底（最多 3 次，4 s 一次）。
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                650,
+                430,
+                248,
+                44
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            // next 里的成功节点走 anchor（谷地/武陵两个方向共用本节点），
+            // 自定义动作无法解析 anchor，这里把两个方向的具体节点都列上。
+            "wait_nodes": [
+                "__ScenePrivateMenuRegionalDevelopmentUnlockClose",
+                "__ScenePrivateAnyEnterMenuRegionalDevelopmentValleyIVSuccess",
+                "__ScenePrivateAnyEnterMenuRegionalDevelopmentWulingSuccess"
+            ],
+            "repeat_count": 3,
+            "interval_ms": 4000
+        }
     }
 }
