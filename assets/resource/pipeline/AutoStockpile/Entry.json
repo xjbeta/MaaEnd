@@ -11,14 +11,119 @@
             }
         }
     },
+    // 切换校验 + 补点：点击弹性 tab 后必须确认 tab 真的变浅（选中态）。
+    //
+    // 这里用顶部 tab 的模板而不是侧边栏图标：`ElasticGoodsButtonSelected` 在
+    // 点击前 0.416、点击后 0.969，区分度足够；而侧边栏两张模板近乎互补
+    // （未选中 median=70、选中 median=253），在浅色空白处也能得 0.99，
+    // 2026-11-19 11:02:51 的 0.993 就落在两个图标之间的空白 [25,323,35,35]。
+    //
+    // 原实现把 `ElasticGoodsSelected` 放在 SelectMarket 的识别条件里，
+    // 而它本身就是「切换成功」的结果 —— 一旦那一次点击被吞，条件永远不成立，
+    // 于是 20 s 空转 2418 次失败。现在改成「先点，再校验，失败补点」。
+    // ===== 临时调试节点：验证完删除 =====
+    // 在「切换前」「切换后」各存一张截图，人工核对顶部 tab 的实际状态。
+    // 删除方式：删掉这两个节点，把 GotoElasticGoods.next 改回
+    // ["AutoStockpileEnsureElasticTab"]，EnsureElasticTab/SwitchElasticTab 的
+    // next 改回 ["AutoStockpileSelectMarket"]。
+    "AutoStockpileDebugTabBeforeSwitch": {
+        "desc": "[临时] 切换前截图，用于核对顶部 tab 状态",
+        "pre_delay": 0,
+        "action": {
+            "type": "Screencap"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileEnsureElasticTab"
+        ]
+    },
+    "AutoStockpileDebugTabAfterSwitch": {
+        "desc": "[临时] 切换后截图，用于核对顶部 tab 状态",
+        "pre_delay": 0,
+        "action": {
+            "type": "Screencap"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileSelectMarket"
+        ]
+    },
+    // ===== 临时调试节点结束 =====
+    "AutoStockpileEnsureElasticTab": {
+        "desc": "确认已切到弹性物资 tab，未切换则重点弹性 tab",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileElasticGoodsSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileDebugTabAfterSwitch"
+        ],
+        "on_error": [
+            "AutoStockpileSwitchElasticTab"
+        ]
+    },
+    "AutoStockpileSwitchElasticTab": {
+        "desc": "点击弹性需求物资 tab 并等待切换生效，最多 3 次",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileElasticGoodsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockpileElasticGoodsSelected"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileDebugTabAfterSwitch"
+        ],
+        "on_error": [
+            "AutoStockpileTabSwitchFailed"
+        ]
+    },
+    "AutoStockpileTabSwitchFailed": {
+        "desc": "切换弹性物资 tab 连续失败：停下，避免在稳定物资页继续买错货",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FalseAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockpileSelectMarket": {
         "desc": "将所有可购买物品展示在窗口中",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockpileFindMarketSidebar",
-                    "AutoStockpileElasticGoodsSelected"
+                    "AutoStockpileFindMarketSidebar"
                 ]
             }
         },
@@ -129,7 +234,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileSelectMarket"
+            "AutoStockpileDebugTabBeforeSwitch"
         ]
     },
     "AutoStockpileFindMarketSidebar": {
