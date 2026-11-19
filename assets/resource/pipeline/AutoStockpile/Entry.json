@@ -21,36 +21,10 @@
     // 原实现把 `ElasticGoodsSelected` 放在 SelectMarket 的识别条件里，
     // 而它本身就是「切换成功」的结果 —— 一旦那一次点击被吞，条件永远不成立，
     // 于是 20 s 空转 2418 次失败。现在改成「先点，再校验，失败补点」。
-    // ===== 临时调试节点：验证完删除 =====
-    // 在「切换前」「切换后」各存一张截图，人工核对顶部 tab 的实际状态。
-    // 删除方式：删掉这两个节点，把 GotoElasticGoods.next 改回
-    // ["AutoStockpileEnsureElasticTab"]，EnsureElasticTab/SwitchElasticTab 的
-    // next 改回 ["AutoStockpileSelectMarket"]。
-    "AutoStockpileDebugTabBeforeSwitch": {
-        "desc": "[临时] 切换前截图，用于核对顶部 tab 状态",
-        "pre_delay": 0,
-        "action": {
-            "type": "Screencap"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileEnsureElasticTab"
-        ]
-    },
-    "AutoStockpileDebugTabAfterSwitch": {
-        "desc": "[临时] 切换后截图，用于核对顶部 tab 状态",
-        "pre_delay": 0,
-        "action": {
-            "type": "Screencap"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockpileSelectMarket"
-        ]
-    },
-    // ===== 临时调试节点结束 =====
+    //
+    // pre_wait_freezes 等 tab 区域画面稳定后再判定：2026-11-19 11:50:16 点击后
+    // 首次识别在 +80 ms 就失败、+174 ms 才命中，属于界面尚未刷新完的时序竞争。
+    // 用冻结等待代替固定延迟，界面一变就立刻继续，不浪费也不误判。
     "AutoStockpileEnsureElasticTab": {
         "desc": "确认已切到弹性物资 tab，未切换则重点弹性 tab",
         "recognition": {
@@ -61,11 +35,20 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                340,
+                56,
+                162,
+                116
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileDebugTabAfterSwitch"
+            "AutoStockpileSelectMarket"
         ],
         "on_error": [
             "AutoStockpileSwitchElasticTab"
@@ -99,7 +82,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileDebugTabAfterSwitch"
+            "AutoStockpileSelectMarket"
         ],
         "on_error": [
             "AutoStockpileTabSwitchFailed"
@@ -234,7 +217,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileDebugTabBeforeSwitch"
+            "AutoStockpileEnsureElasticTab"
         ]
     },
     "AutoStockpileFindMarketSidebar": {
