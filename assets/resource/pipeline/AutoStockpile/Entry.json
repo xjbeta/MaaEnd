@@ -22,9 +22,11 @@
     // 而它本身就是「切换成功」的结果 —— 一旦那一次点击被吞，条件永远不成立，
     // 于是 20 s 空转 2418 次失败。现在改成「先点，再校验，失败补点」。
     //
-    // pre_wait_freezes 等 tab 区域画面稳定后再判定：2026-11-19 11:50:16 点击后
-    // 首次识别在 +80 ms 就失败、+174 ms 才命中，属于界面尚未刷新完的时序竞争。
-    // 用冻结等待代替固定延迟，界面一变就立刻继续，不浪费也不误判。
+    // 冻结等待挂在 AutoStockpileGotoElasticGoods 的 post_wait_freezes 上，不在这里：
+    // `pre_wait_freezes` 是在「识别通过之后、执行动作之前」生效，救不了首次识别。
+    // 2026-11-19 13:01:16 的顺序就是 Recognition.Succeeded → WaitFreezes → Action，
+    // 首次识别仍然在点击后 +37 ms 拿到 0.499（tab 淡入动画中）并失败，轮询 7 次、
+    // 到 +194 ms 才命中。`post_wait_freezes` 才是「点击后等画面稳定，再识别 next」。
     "AutoStockpileEnsureElasticTab": {
         "desc": "确认已切到弹性物资 tab，未切换则重点弹性 tab",
         "recognition": {
@@ -34,15 +36,6 @@
                     "AutoStockpileElasticGoodsSelected"
                 ]
             }
-        },
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                340,
-                56,
-                162,
-                116
-            ]
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -213,6 +206,19 @@
         "action": {
             "type": "Click",
             "param": {}
+        },
+        // 点击后等顶部 tab 栏渲染完再让 AutoStockpileEnsureElasticTab 判定。
+        // tab 栏实测：x 76..800，选中态是浅色（≈236）、未选中是深色（≈72），
+        // 切换时两半在同一条 y≈120..156 的横带上对调，淡入动画约 180~190 ms。
+        // 不写 target 会只等模板命中的那一小块，覆盖不到整条 tab 栏。
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                76,
+                120,
+                724,
+                36
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
