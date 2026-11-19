@@ -7,6 +7,7 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 )
 
 const (
@@ -31,6 +32,9 @@ type DynamicHtmlLog struct {
 	id string
 	// 最后一次输出的日志，防止输出重复日志
 	lastMessage string
+	// plainText 表示当前客户端不能执行 CSS。倒计时在这里整段不输出：
+	// 它每秒一条，去掉 HTML 后仍是日志噪声，MaaFwApp 也没有地方展示它。
+	plainText bool
 }
 
 type DynamicHtmlLogData struct {
@@ -46,7 +50,8 @@ func New() *DynamicHtmlLog {
 	defer mu.Unlock()
 	logIndex += 1
 	return &DynamicHtmlLog{
-		id: idPrefix + `-` + strconv.Itoa(logIndex), //唯一id
+		id:        idPrefix + `-` + strconv.Itoa(logIndex), //唯一id
+		plainText: pienv.PlainTextFocusClient(),
 	}
 }
 
@@ -75,20 +80,30 @@ func (data *DynamicHtmlLogData) WithStyle(style string) *DynamicHtmlLogData {
 }
 
 func (data *DynamicHtmlLogData) Print() {
-	if data.log.lastMessage == data.message {
+	if !data.shouldPrint() {
 		return
 	}
+	maafocus.PrintLargeContentTrimNewline(data.render())
+	data.log.lastMessage = data.message
+}
+
+// shouldPrint suppresses the whole countdown on plain-text clients: it is
+// per-second log noise there, and Markwon has no CSS engine to hide old entries.
+func (data *DynamicHtmlLogData) shouldPrint() bool {
+	return !data.log.plainText && data.log.lastMessage != data.message
+}
+
+// render builds the focus payload. Only used for clients whose renderer
+// executes CSS (MXU); MaaFwApp never reaches here.
+func (data *DynamicHtmlLogData) render() string {
 	// 每条日志都携带隐藏样式，避免客户端裁切旧日志后丢失样式。
 	if data.class == "" {
 		data.class = defClass
 	}
-	maafocus.PrintLargeContentTrimNewline(
-		i18n.RenderHTML(templateKey, map[string]any{
-			"id":      data.log.id,
-			"class":   data.class,
-			"style":   data.style,
-			"message": data.message,
-		}),
-	)
-	data.log.lastMessage = data.message
+	return i18n.RenderHTML(templateKey, map[string]any{
+		"id":      data.log.id,
+		"class":   data.class,
+		"style":   data.style,
+		"message": data.message,
+	})
 }

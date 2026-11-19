@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -99,4 +100,31 @@ func PrintLargeContent(content string) {
 func PrintLargeContentTrimNewline(content string) {
 	content = strings.Join(strings.Fields(content), " ")
 	fmt.Println(content)
+}
+
+// PrintHtmlOrPlain prints html for clients that can execute the CSS embedded in
+// focus content, and plain for clients that cannot.
+//
+// MaaFwApp (Android) renders focus with Markwon, which has no CSS engine. The
+// <style> blocks in the countdown templates exist only to hide stale entries in
+// MXU; without this branch their selectors would be shown as ordinary log text.
+// plain should carry the same information as html without any markup.
+func PrintHtmlOrPlain(html, plain string) {
+	if pienv.PlainTextFocusClient() {
+		PrintLargeContentTrimNewline(plain)
+		return
+	}
+	PrintLargeContentTrimNewline(html)
+}
+
+// PrintHtmlOrSkip prints html for clients that can execute the CSS embedded in
+// focus content, and nothing for clients that cannot.
+//
+// Use it for recurring countdown lines: without CSS they degrade into per-tick
+// log noise on MaaFwApp, which has no place to collapse them.
+func PrintHtmlOrSkip(html string) {
+	if pienv.PlainTextFocusClient() {
+		return
+	}
+	PrintLargeContentTrimNewline(html)
 }

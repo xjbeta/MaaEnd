@@ -58,8 +58,9 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 		// 收到停止信号 → 提前结束
 		if ctx.GetTasker().Stopping() {
 			log.Info().Str("component", "AutoEcoFarm").Msg("interruptible sleep: task stopping, exit early")
-			maafocus.PrintLargeContentTrimNewline(
+			maafocus.PrintHtmlOrPlain(
 				i18n.RenderHTML("autoecofarm.interruptible_sleep_stopped", map[string]any{}),
+				i18n.T("autoecofarm.interruptible_sleep_stopped.message"),
 			)
 			return true
 		}
@@ -69,7 +70,7 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 			m := remaining / 60000
 			s := (remaining % 60000) / 1000
 			formatted := fmt.Sprintf("%02d:%02d", m, s)
-			maafocus.PrintLargeContentTrimNewline(
+			maafocus.PrintHtmlOrSkip(
 				i18n.RenderHTML("autoecofarm.interruptible_sleep", map[string]any{
 					"Formatted": formatted,
 				}),
@@ -88,8 +89,9 @@ func (a *autoEcoFarmInterruptibleSleep) Run(ctx *maa.Context, arg *maa.CustomAct
 
 	// 休眠自然结束 → 输出完成
 
-	maafocus.PrintLargeContentTrimNewline(
+	maafocus.PrintHtmlOrPlain(
 		i18n.RenderHTML("autoecofarm.interruptible_sleep_done", map[string]any{}),
+		i18n.T("autoecofarm.interruptible_sleep_done.completed"),
 	)
 	return true
 }

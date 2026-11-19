@@ -359,3 +359,24 @@ func ResourceName() string {
 	}
 	return ""
 }
+
+/* ******** Focus rendering capability ******** */
+
+// plainTextFocusClientName 是只按纯文本渲染 focus 正文的客户端。
+//
+// MaaFwApp（Android）用 Markwon 渲染 Focus，而 Markwon 没有 CSS 引擎：模板里
+// 用来隐藏旧倒计时条目的 <style> 会被当成普通正文画出来。桌面端 MXU 会执行
+// 这些 CSS，所以不能一刀切地删掉 HTML 路径。
+const plainTextFocusClientName = "MaaFwApp"
+
+// PlainTextFocusClient reports whether the current PI client renders focus
+// content as plain text only (no CSS). See [IsPlainTextFocusClient].
+func PlainTextFocusClient() bool {
+	return IsPlainTextFocusClient(ClientName())
+}
+
+// IsPlainTextFocusClient reports whether a PI client name belongs to a client
+// whose focus renderer cannot execute CSS.
+func IsPlainTextFocusClient(clientName string) bool {
+	return strings.EqualFold(strings.TrimSpace(clientName), plainTextFocusClientName)
+}

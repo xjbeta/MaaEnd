@@ -81,3 +81,24 @@ func TestControllerKindFromInfo(t *testing.T) {
 		})
 	}
 }
+
+func TestIsPlainTextFocusClient(t *testing.T) {
+	cases := []struct {
+		name       string
+		clientName string
+		want       bool
+	}{
+		{"maa fw app", "MaaFwApp", true},
+		{"case and spaces", "  maaFWApp  ", true},
+		{"desktop mxu", "MXU", false},
+		{"empty", "", false},
+		{"other android client", "MaaFwApp2", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := IsPlainTextFocusClient(c.clientName); got != c.want {
+				t.Fatalf("IsPlainTextFocusClient(%q) = %v, want %v", c.clientName, got, c.want)
+			}
+		})
+	}
+}

@@ -91,7 +91,7 @@ func (r *ExchangeCountdownWithinThresholdRecognition) Run(ctx *maa.Context, arg 
 	}
 
 	if params.ReportWaiting && r.shouldReportWaiting(time.Now()) {
-		maafocus.PrintLargeContentTrimNewline(
+		maafocus.PrintHtmlOrSkip(
 			i18n.RenderHTML("dijiangrewards.wait_exchange_countdown", map[string]any{
 				"Formatted": formatCountdown(seconds),
 			}),
