@@ -693,7 +693,7 @@
                     255,
                     255
                 ],
-                "count": 300
+                "count": 200
             }
         },
         "pre_delay": 0,
@@ -726,7 +726,7 @@
                     255,
                     255
                 ],
-                "count": 300
+                "count": 200
             }
         },
         "pre_delay": 0,
@@ -783,6 +783,9 @@
             "Node.Action.Starting": "$task.AutoEcoFarm.focus.store_cooldown"
         }
     },
+    // 关面板用 RepeatUntilFoundAction 重试：2026-11-20 12:41 武陵城空设施走了这条路，
+    // 那一次点击被吞（点完 20 s 面板还在，错误截图证实），导致 FacilityClosed 超时、
+    // 整个 finish 失败。重试的判定是「回到地图」或「奖励页弹出来」，两者任一命中就停。
     "__AutoEcoFarmFinishFacility": {
         "desc": "关闭当前装置面板",
         "recognition": "And",
@@ -794,7 +797,19 @@
         "box_index": 2,
         "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__AutoEcoFarmFacilityClosed",
+                        "SceneNoticeRewardsConfirm"
+                    ],
+                    "repeat_count": 3,
+                    "interval_ms": 3000
+                }
+            }
         },
         "post_wait_freezes": {
             "time": 200,
