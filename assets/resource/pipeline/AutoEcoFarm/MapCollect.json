@@ -4,7 +4,8 @@
         "pre_delay": 0,
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindWulingCityFarm",
-            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreWulingCityFarm"
+            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreWulingCityFarm",
+            "__AutoEcoFarmOutputAnchor": "__AutoEcoFarmFarmOutputPresent"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -50,7 +51,7 @@
     },
     "__AutoEcoFarmStoreWulingCityFarm": {
         "desc": "武陵城自动农植机存仓",
-        "max_hit": 5,
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "__AutoEcoFarmFacilityPanel",
@@ -82,7 +83,8 @@
         "pre_delay": 0,
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindSisPaintingFarm",
-            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreSisPaintingFarm"
+            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreSisPaintingFarm",
+            "__AutoEcoFarmOutputAnchor": "__AutoEcoFarmFarmOutputPresent"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -160,7 +162,8 @@
         "pre_delay": 0,
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch",
-            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreRanch"
+            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreRanch",
+            "__AutoEcoFarmOutputAnchor": "__AutoEcoFarmRanchOutputPresent"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -239,7 +242,7 @@
     // __AutoEcoFarmFinishFacility，正常收尾。
     "__AutoEcoFarmStoreRanch": {
         "desc": "祀的画牧场存仓，收完后等 10 秒再收下一批",
-        "max_hit": 5,
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "__AutoEcoFarmRanchPanel",
@@ -585,6 +588,77 @@
         "rate_limit": 0,
         "next": [
             "__AutoEcoFarmRewardConfirm",
+            "[Anchor]__AutoEcoFarmOutputAnchor",
+            "__AutoEcoFarmFinishFacility"
+        ]
+    },
+    // 存仓前先判「左上角第一格有没有产物」：空格子亮度只有 40~60，
+    // 有产物的格子是浅色图标格（中位 205），差值 150 以上没有重叠。
+    // 判据实测：牧场满态 4962 像素 ≥150（75.6%），牧场空态 0 像素、
+    // 农植机空态 0 像素（两张不同地区的面板都验过）。
+    // 命中才去点存仓，没产物直接关面板，省掉一次无意义的点击 + 10 秒冷却。
+    "__AutoEcoFarmFarmOutputPresent": {
+        "desc": "农植机仓储左上角第一格有产物",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    877,
+                    334,
+                    53,
+                    54
+                ],
+                "method": 4,
+                "lower": [
+                    150,
+                    150,
+                    150
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 500
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__AutoEcoFarmStoreFacilityAnchor",
+            "__AutoEcoFarmFinishFacility"
+        ]
+    },
+    "__AutoEcoFarmRanchOutputPresent": {
+        "desc": "牧场「当前已产出」左上角第一格有产物",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    872,
+                    213,
+                    80,
+                    82
+                ],
+                "method": 4,
+                "lower": [
+                    150,
+                    150,
+                    150
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 500
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "[Anchor]__AutoEcoFarmStoreFacilityAnchor",
             "__AutoEcoFarmFinishFacility"
         ]
