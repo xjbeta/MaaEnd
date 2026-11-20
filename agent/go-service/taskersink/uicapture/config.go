@@ -55,6 +55,10 @@ type Config struct {
 	OncePerNode *bool `json:"once_per_node"`
 	// CooldownMS 未开启 OncePerNode 时的单节点冷却，默认 3000 毫秒。
 	CooldownMS int `json:"cooldown_ms"`
+	// Event 截图时机："recognition"（默认，识别成功那一刻）或
+	// "pipeline"（节点完成之后，即 post_wait_freezes 等稳定之后）。
+	// 要核对「判据实际看到的那一帧」时用 pipeline。
+	Event string `json:"event"`
 }
 
 // normalize 补齐默认值并裁剪越界值。
@@ -79,6 +83,12 @@ func (c Config) normalize() Config {
 	}
 	if c.CooldownMS <= 0 {
 		c.CooldownMS = defaultCooldownMS
+	}
+	switch strings.ToLower(c.Event) {
+	case "pipeline":
+		c.Event = "pipeline"
+	default:
+		c.Event = "recognition"
 	}
 	return c
 }

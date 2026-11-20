@@ -198,3 +198,19 @@ func TestSafeName(t *testing.T) {
 		t.Errorf("safeName(long) len = %d, want 80", len(got))
 	}
 }
+
+// event 只认 pipeline，其余一律回落到 recognition。
+func TestConfigEvent(t *testing.T) {
+	cases := map[string]string{
+		"":            "recognition",
+		"recognition": "recognition",
+		"pipeline":    "pipeline",
+		"PIPELINE":    "pipeline",
+		"weird":       "recognition",
+	}
+	for in, want := range cases {
+		if got := (Config{Event: in}).normalize().Event; got != want {
+			t.Errorf("Event %q -> %q, want %q", in, got, want)
+		}
+	}
+}

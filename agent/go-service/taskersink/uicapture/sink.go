@@ -47,8 +47,16 @@ func NewSink() *Sink {
 
 // 其余 Context 事件与本功能无关，空实现即可。
 
-// OnNodePipelineNode 忽略节点执行事件。
-func (s *Sink) OnNodePipelineNode(*maa.Context, maa.EventStatus, maa.NodePipelineNodeDetail) {}
+// OnNodePipelineNode 处理节点完成事件（配置 event=pipeline 时用它）。
+//
+// 与识别事件的区别：这一支在动作与 post_wait_freezes 都结束之后触发，
+// 拿到的就是「判据实际看过的那一帧」，用来核对识别结果最准。
+func (s *Sink) OnNodePipelineNode(ctx *maa.Context, status maa.EventStatus, detail maa.NodePipelineNodeDetail) {
+	if status != maa.EventStatusSucceeded || ctx == nil || detail.Name == "" {
+		return
+	}
+	s.maybeCapture(ctx, detail.TaskID, detail.Name, "pipeline")
+}
 
 // OnNodeRecognitionNode 忽略识别节点事件。
 func (s *Sink) OnNodeRecognitionNode(*maa.Context, maa.EventStatus, maa.NodeRecognitionNodeDetail) {
@@ -63,21 +71,22 @@ func (s *Sink) OnNodeNextList(*maa.Context, maa.EventStatus, maa.NodeNextListDet
 // OnNodeAction 忽略动作事件。
 func (s *Sink) OnNodeAction(*maa.Context, maa.EventStatus, maa.NodeActionDetail) {}
 
-// OnNodeRecognition 处理识别成功事件。
-//
-// 选识别成功而不是动作成功：识别成功那一刻，画面上正是该界面，
-// 而动作成功后界面可能已经翻页。
+// OnNodeRecognition 处理识别成功事件（配置 event=recognition 时用它，默认）。
 func (s *Sink) OnNodeRecognition(ctx *maa.Context, status maa.EventStatus, detail maa.NodeRecognitionDetail) {
 	if status != maa.EventStatusSucceeded || ctx == nil || detail.Name == "" {
 		return
 	}
+	s.maybeCapture(ctx, detail.TaskID, detail.Name, "recognition")
+}
 
+// maybeCapture 是两类事件的公共实现；from 标记事件来源，与配置的 event 对不上就跳过。
+func (s *Sink) maybeCapture(ctx *maa.Context, taskID uint64, name, from string) {
 	now := time.Now()
 	cfg, patterns, on := s.store.current(now)
-	if !on || !matchName(patterns, detail.Name) {
+	if !on || cfg.Event != from || !matchName(patterns, name) {
 		return
 	}
-	if !s.allow(detail.TaskID, detail.Name, now, cfg) {
+	if !s.allow(taskID, name, now, cfg) {
 		return
 	}
 
@@ -95,18 +104,18 @@ func (s *Sink) OnNodeRecognition(ctx *maa.Context, status maa.EventStatus, detai
 		log.Debug().
 			Err(err).
 			Str("component", component).
-			Str("node", detail.Name).
+			Str("node", name).
 			Msg("cached image unavailable, skip ui capture")
 		return
 	}
 
-	stem := now.Format("20060102-150405.000") + "_" + safeName(detail.Name)
+	stem := now.Format("20060102-150405.000") + "_" + safeName(name)
 	path := filepath.Join(fsutil.UserDataPath("debug", cfg.Dir), stem+"."+cfg.Format)
 	if err := writeImage(path, img, cfg); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", component).
-			Str("node", detail.Name).
+			Str("node", name).
 			Str("path", path).
 			Msg("failed to save ui capture")
 		return
@@ -114,7 +123,8 @@ func (s *Sink) OnNodeRecognition(ctx *maa.Context, status maa.EventStatus, detai
 
 	log.Info().
 		Str("component", component).
-		Str("node", detail.Name).
+		Str("node", name).
+		Str("event", from).
 		Str("path", path).
 		Int("width", img.Bounds().Dx()).
 		Int("height", img.Bounds().Dy()).
