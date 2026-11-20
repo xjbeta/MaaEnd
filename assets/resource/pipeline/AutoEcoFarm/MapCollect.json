@@ -5,6 +5,7 @@
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindWulingCityFarm",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreWulingCityFarm",
+            "__AutoEcoFarmOutputRetryAnchor": "__AutoEcoFarmOutputRetryWuling",
             "__AutoEcoFarmOutputAnchor": "__AutoEcoFarmFarmOutputPresent"
         },
         "post_delay": 0,
@@ -84,6 +85,7 @@
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindSisPaintingFarm",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreSisPaintingFarm",
+            "__AutoEcoFarmOutputRetryAnchor": "__AutoEcoFarmOutputRetrySisPainting",
             "__AutoEcoFarmOutputAnchor": "__AutoEcoFarmFarmOutputPresent"
         },
         "post_delay": 0,
@@ -163,6 +165,7 @@
         "anchor": {
             "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch",
             "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreRanch",
+            "__AutoEcoFarmOutputRetryAnchor": "__AutoEcoFarmOutputRetryRanch",
             "__AutoEcoFarmOutputAnchor": "__AutoEcoFarmRanchOutputPresent"
         },
         "post_delay": 0,
@@ -272,6 +275,66 @@
     // 存仓奖励关闭后统一等 10 秒再回面板：作物与牧场都是约 10 秒才刷下一批。
     // 牧场仍保留单独的 __AutoEcoFarmRanchRewardConfirm / __AutoEcoFarmRanchStoreCooldown，
     // 只为 focus 文案区分「等待牧场产出」与「等待农植机采集」，冷却时长与公共分支一致。
+    "__AutoEcoFarmOutputRetryWuling": {
+        "desc": "武陵城农植机：没产物时等 5 秒再看一次（每个设施只有一次）",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CountDownAction",
+                "custom_action_param": {
+                    "duration": 5,
+                    "duration_type": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
+    "__AutoEcoFarmOutputRetrySisPainting": {
+        "desc": "祀的画农植机：没产物时等 5 秒再看一次（每个设施只有一次）",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CountDownAction",
+                "custom_action_param": {
+                    "duration": 5,
+                    "duration_type": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
+    "__AutoEcoFarmOutputRetryRanch": {
+        "desc": "祀的画牧场：没产物时等 5 秒再看一次（每个设施只有一次）",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CountDownAction",
+                "custom_action_param": {
+                    "duration": 5,
+                    "duration_type": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
     "__AutoEcoFarmRanchRewardConfirm": {
         "desc": "通过产物过滤奖励子任务处理牧场奖励页",
         "recognition": "And",
@@ -589,6 +652,7 @@
         "next": [
             "__AutoEcoFarmRewardConfirm",
             "[Anchor]__AutoEcoFarmOutputAnchor",
+            "[Anchor]__AutoEcoFarmOutputRetryAnchor",
             "__AutoEcoFarmFinishFacility"
         ]
     },
@@ -599,7 +663,13 @@
     // count 两边不同：农植机格子的 ROI 整个覆盖在不透明的格子里，取 500 更灵敏；
     // 牧场空态时网格消失、ROI 落在半透明面板上（能看到地图），
     // 所以牧场收紧到 1200（满态 4962 仍有余量），降低地图高亮元素误判的可能。
-    // 命中才去点存仓，没产物直接关面板，省掉一次无意义的点击 + 10 秒冷却。
+    // 完整循环（每个设施独立）：
+    //   进面板 → 等右侧稳定 2 s → 判第一格
+    //     有产物 → 存仓 → 奖励页 → 等 10 s → 回到「判第一格」
+    //     没产物 → 等 5 s（每个设施只有一次）→ 再判；仍没有 → 关面板结束
+    // 5 秒宽限用 max_hit 1 的 CountDownAction 实现：用过一次后该节点在 next 里
+    // 被跳过，于是第二次「没有产物」直接落到 FinishFacility。
+    // 命中才去点存仓，省掉一次无意义的点击 + 10 秒冷却。
     "__AutoEcoFarmFarmOutputPresent": {
         "desc": "农植机仓储左上角第一格有产物",
         "recognition": {
