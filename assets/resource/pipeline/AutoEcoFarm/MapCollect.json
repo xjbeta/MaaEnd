@@ -400,7 +400,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmStoreRanch"
+            "__AutoEcoFarmCollectPanel"
         ]
     },
     // 农牧奖励页有两类内容：牧场页出产物（优质鳞肉/鳞肉/优质禽蛋/禽蛋/优质兽奶/兽奶/优质肉块/肉块），
