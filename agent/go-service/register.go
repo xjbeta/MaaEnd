@@ -70,6 +70,9 @@ func registerAll() {
 	// 诊断留证（独立扩展，接线在 diagcapture_hook.go）
 	registerDiagCapture()
 
+	// 界面留证（独立扩展，接线在 uicapture_hook.go）
+	registerUICapture()
+
 	// Pre-Check Custom
 	aspectratio.Register()
 	hdrcheck.Register()
