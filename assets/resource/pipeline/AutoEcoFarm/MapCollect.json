@@ -292,7 +292,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmCollectPanel"
+            "__AutoEcoFarmCollectPanelReady"
         ]
     },
     "__AutoEcoFarmOutputRetrySisPainting": {
@@ -312,7 +312,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmCollectPanel"
+            "__AutoEcoFarmCollectPanelReady"
         ]
     },
     "__AutoEcoFarmOutputRetryRanch": {
@@ -332,7 +332,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmCollectPanel"
+            "__AutoEcoFarmCollectPanelReady"
         ]
     },
     "__AutoEcoFarmRanchRewardConfirm": {
@@ -375,7 +375,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmCollectPanel"
+            "__AutoEcoFarmCollectPanelReady"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoEcoFarm.focus.ranch_store_cooldown"
@@ -630,6 +630,25 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    // 面板确认分两种：第一次进面板要等右侧稳定（网格还在渲染），
+    // 冷却 10 s 或宽限 5 s 之后再进来，画面本来就静止，再等一遍纯属浪费。
+    // 拆开之后每个设施只等一次：空设施原来等 2 次、有产物的要等 3~4 次。
+    "__AutoEcoFarmCollectPanelReady": {
+        "desc": "面板确认（不再等稳定：冷却或宽限之后本来就静止）",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFacilityPanel"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRewardConfirm",
+            "[Anchor]__AutoEcoFarmOutputAnchor",
+            "[Anchor]__AutoEcoFarmOutputRetryAnchor",
+            "__AutoEcoFarmFinishFacility"
+        ]
+    },
     "__AutoEcoFarmCollectPanel": {
         "desc": "确认装置面板稳定后继续尝试存仓",
         "recognition": "And",
@@ -777,7 +796,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmCollectPanel"
+            "__AutoEcoFarmCollectPanelReady"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoEcoFarm.focus.store_cooldown"
