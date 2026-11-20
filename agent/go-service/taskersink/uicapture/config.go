@@ -5,7 +5,8 @@
 // 用来量 ROI、写新识别，或排查「当时屏幕到底是什么样」。
 //
 // 设计上刻意做成零编译配置：
-//   - 开关与目标节点都写在 files/debug/ui_capture.json，ADB 推一份即可；
+//   - 开关与目标节点都写在 <UserDataPath>/debug/ui_capture.json
+//     （安卓上是 files/pi/debug/ui_capture.json），ADB 推一份即可；
 //   - 每 2 秒查一次文件 mtime，改完不用重启任务；
 //   - 取图走 ctrl.CacheImageInto，复用框架已缓存的帧，不额外截图；
 //   - 任何异常都只打日志并按「关闭」处理，不影响任务本身。
@@ -23,7 +24,7 @@ import (
 )
 
 const (
-	// configFile 相对用户数据目录，即 files/debug/ui_capture.json。
+	// configFile 相对用户数据目录的 debug/，安卓上即 files/pi/debug/ui_capture.json。
 	configFile = "ui_capture.json"
 
 	// reloadInterval 配置热加载间隔。改配置后最多这么久生效。
@@ -134,7 +135,15 @@ func (s *store) current(now time.Time) (Config, []string, bool) {
 func (s *store) reloadLocked() {
 	info, err := os.Stat(s.path)
 	if err != nil {
-		// 文件不存在是正常状态（默认关闭），不重复告警。
+		// 文件不存在是正常状态（默认关闭），但要把解析出的路径打出来一次：
+		// 路径写错时（例如推到了 files/debug 而不是 files/pi/debug）只有这行能看出来。
+		if !s.warnOnce {
+			s.warnOnce = true
+			log.Info().
+				Str("component", component).
+				Str("path", s.path).
+				Msg("no ui capture config, feature disabled")
+		}
 		s.cfg = Config{}.normalize()
 		s.loaded = true
 		s.modTime = time.Time{}
