@@ -71,9 +71,11 @@
             270
         ]
     },
+    // 站在送货目标前时，交货图标与名称标签的淡入比 300 ms 长：
+    // 18 FPS 下早判会把「还没出全」当成「没出现」，随后整条提交链空等。
     "AutoDeliveryCheckSubmitGoodsTarget": {
         "pre_wait_freezes": {
-            "time": 300,
+            "time": 600,
             "target": [
                 720,
                 349,
