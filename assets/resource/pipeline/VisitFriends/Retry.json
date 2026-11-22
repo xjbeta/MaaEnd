@@ -1,0 +1,23 @@
+{
+    // 任务级整块重试：好友拜访入口失败后整块再跑一次。
+    // 机制与 SeizeDeliveryJobs/Retry.json 相同，见那里的说明。
+    //
+    // 不触发重试的情况：线索交换/助力次数已满走正常结束路径，不是失败。
+    "VisitFriendsWithRetry": {
+        "desc": "拜访好友入口（失败后整块重试 1 次）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RetryTaskAction",
+                "custom_action_param": {
+                    "task": "VisitFriendsMain",
+                    "retry": 1,
+                    "delay_ms": 2000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

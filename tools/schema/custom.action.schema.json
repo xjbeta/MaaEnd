@@ -87,6 +87,7 @@
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
+                "RetryTaskAction",
                 "RestaurantDecisionAction",
                 "SceneManagerMenuListClickItemAction",
                 "SeizeDeliveryJobsResetScanStateAction",
@@ -524,6 +525,22 @@
                 "properties": {
                     "custom_action_param": {
                         "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam"
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "RetryTaskAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/retry_task.schema.json#/$defs/RetryTaskParam"
                     }
                 },
                 "required": ["custom_action_param"]

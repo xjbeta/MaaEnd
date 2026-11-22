@@ -135,6 +135,41 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 
+### RetryTaskAction
+
+实现位于 `agent/go-service/common/retrytask`。把一个子任务整块跑起来，失败就**从它的入口节点重新跑一遍**，直到成功或用完重试次数。用于给任务入口加「整块重试」，避免偶发失败直接判死整个任务。
+
+与 `FailureCollectorRunTask` 的区别：后者只负责「跑一次 + 记录失败 + 可选跑恢复任务」，不做重试；`RetryTaskAction` 只做重试，需要汇总失败时用 `failure_key` 把最终失败交给 `FailureCollector`。
+
+- `task: string`：要执行的子任务入口节点名，必填。
+- `retry?: int`：失败后**额外**重试的次数（不含首次执行）；省略或 `0` 表示不重试。
+- `delay_ms?: int`：每次重试前的等待毫秒数，给画面/状态一点时间复位；默认 `0`。
+- `failure_key?: string`：全部重试都失败后，把 `task` 记进 `FailureCollector` 的这个 key，供 `FailureCollectorFinish` 统一上报。
+
+全部尝试失败时本节点返回失败，任务如实上报；成功时返回成功。**不会**在失败时返回成功来「吞掉」错误。
+
+使用示例（任务入口包装，`assets/resource/pipeline/SeizeDeliveryJobs/Retry.json`）：
+
+```json
+{
+    "SeizeDeliveryJobsWithRetry": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RetryTaskAction",
+                "custom_action_param": {
+                    "task": "SeizeDeliveryJobsCheckOngoingJob",
+                    "retry": 1,
+                    "delay_ms": 2000
+                }
+            }
+        }
+    }
+}
+```
+
+重试前请确认子任务**可以整块重跑**：子任务会从自己的入口重新做场景判定，已经完成的阶段若无法从当前画面接上，就会按它自己的流程回到起点。会重复产生副作用的子任务（如重复购买）不应加重试。
+
 ### CharacterSearchAction
 
 `CharacterSearchAction` 实现位于 `agent/go-service/common/charactercontroller`，用于找不到交互点时按固定 WASD 绕圈路径微调位置并识别目标节点。详细参数与路径说明见 [CharacterController 参考文档](./components/character-controller.md#action-charactersearchaction)。

@@ -135,6 +135,41 @@ The target position always uses the recognition `box` that triggered this Action
 
 Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 
+### RetryTaskAction
+
+Implemented in `agent/go-service/common/retrytask`. It runs a subtask as a whole and, on failure, **re-runs it from its entry node** until it succeeds or the retry budget is spent. Use it to give a task entry a whole-block retry so an occasional failure does not fail the entire task.
+
+Compared with `FailureCollectorRunTask`: the latter runs once, records the failure and optionally runs a recovery task, but does not retry; `RetryTaskAction` only retries. When you also need failure aggregation, pass `failure_key` so the final failure goes to `FailureCollector`.
+
+- `task: string`: Entry node name of the subtask to run. Required.
+- `retry?: int`: Extra retries after a failure (not counting the first run); omitted or `0` means no retry.
+- `delay_ms?: int`: Wait in milliseconds before each retry, giving the screen/state a moment to settle. Defaults to `0`.
+- `failure_key?: string`: After every attempt fails, record `task` under this `FailureCollector` key so `FailureCollectorFinish` can report it.
+
+The node returns failure when every attempt fails, so the task reports failure truthfully; it returns success on success. It never returns success to swallow an error.
+
+Example (task-entry wrapper, `assets/resource/pipeline/SeizeDeliveryJobs/Retry.json`):
+
+```json
+{
+    "SeizeDeliveryJobsWithRetry": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RetryTaskAction",
+                "custom_action_param": {
+                    "task": "SeizeDeliveryJobsCheckOngoingJob",
+                    "retry": 1,
+                    "delay_ms": 2000
+                }
+            }
+        }
+    }
+}
+```
+
+Before adding a retry, make sure the subtask **can be re-run as a whole**: it re-does its own scene checks from the entry node, and any stage it cannot resume from the current screen will be replayed from the start. Subtasks with duplicate side effects (such as buying the same goods twice) should not be retried.
+
 ### CharacterSearchAction
 
 `CharacterSearchAction` lives in `agent/go-service/common/charactercontroller`. When an interact point cannot be found, it walks a fixed WASD circle to fine-tune position and recognize target nodes. See [CharacterController reference](./components/character-controller.md#action-charactersearchaction) for parameters and path details.

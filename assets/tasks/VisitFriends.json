@@ -3,7 +3,7 @@
         {
             "name": "VisitFriends",
             "label": "$task.VisitFriends.label",
-            "entry": "VisitFriendsMain",
+            "entry": "VisitFriendsWithRetry",
             "description": "$task.VisitFriends.description",
             "group": [
                 "dijiang_ship"

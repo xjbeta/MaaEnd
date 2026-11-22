@@ -1,0 +1,29 @@
+{
+    // 任务级整块重试：任务入口失败后整块再跑一次。
+    //
+    // 为什么放在 Pipeline 而不是 App：任务执行循环在 Android/MaaFwApp（独立子模块，
+    // Aliothmoon/MaaFwApp），改它要单独提 PR 且 CI 不覆盖。这里用 go-service 的
+    // RetryTaskAction 包住入口节点，效果等价：子任务本身是模块化的（从入口重新走
+    // 它自己的场景判定），重跑能接上就接上，接不上就按它自己的流程回起点。
+    //
+    // 不触发重试的情况：
+    //   - 「今日委托已达上限」走 next:[] 正常结束，不是失败；
+    //   - 用户主动停止由 App 侧判定，不会走到这里。
+    "SeizeDeliveryJobsWithRetry": {
+        "desc": "抢委托送货入口（失败后整块重试 1 次）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RetryTaskAction",
+                "custom_action_param": {
+                    "task": "SeizeDeliveryJobsCheckOngoingJob",
+                    "retry": 1,
+                    "delay_ms": 2000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
