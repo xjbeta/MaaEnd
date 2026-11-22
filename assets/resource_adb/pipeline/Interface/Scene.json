@@ -1,18 +1,25 @@
 {
-    // ADB 覆盖：奖励面板关闭按钮改用「点击 + 识别验证 + 重试」。
-    // 依据 2026.11.06 04:21:32 的 AutoSell 实机日志：出售成功浮层出现后，
-    // SceneNoticeRewardsConfirmClick 于 04:21:36.635 点击 (651,605)，随后
-    // post_wait_freezes（target [500,0,280,200]，time 400）仅 426ms 就判定稳定，
-    // 即顶部区域没有任何变化——点击被 ADB 输入层吞掉；紧接着同一节点在
-    // AutoStockStaple 链上于 04:22:04.252 再次被吞、04:22:09.231 才生效，
-    // 同一按钮连续两次点击丢失，属输入丢失而非落点问题。
-    // 原节点点击一次后直接 next，没有任何「浮层是否已关闭」的校验，浮层会一直
-    // 留在屏幕上，导致后续 InFriendsStockRedistribution 等识别全部失败。
-    // 这里改为 RepeatUntilNotFoundAction：点击 → 以本节点（InNoticeRewards +
-    // CloseRewardsButton）为 wait_node 轮询 500ms/最长 3s，浮层消失即结束，
-    // 仍在则再点，最多 3 次。target 固定为识别框，保证每次重试落在同一按钮上。
+    // ADB 覆盖：奖励面板关闭按钮「点一次 → 确认面板真的消失 → 没消失才补一次」。
+    //
+    // 历史：2026-11-06 曾把一次 Click 改成 RepeatUntilNotFoundAction（repeat_count 3），
+    // 理由是「点击被 ADB 输入层吞掉」。2026-11-22 复跑证明那个判断是错的，而且这个改法
+    // 本身制造了新故障：
+    //   - 当时 wait_node 指向 SceneNoticeRewardsConfirmClick **自己**。点完第 1 下，面板
+    //     开始淡出但下一帧仍能认出自己 → 判「没关」→ 再点第 2、3 下。
+    //   - 多出来的点击落在面板已经关闭后的下层界面上：10:01:41.238 点关闭成功，
+    //     10:01:41.949 又点了一下落到下层，10:01:53.980 那一下落到「生产助力」按钮，
+    //     于是又触发一次助力、10:01:55.302 重新弹出奖励面板 —— 自激。
+    //   - 当天 10 次运行里，凡 1 次点击就结束的全部成功（7/7，0.8s）；
+    //     唯一跑到 3 次的那次（10:01:58）失败，耗时 9.7s。
+    //
+    // 现在：wait_node 改为 InNoticeRewards（面板顶部的奖励图标），这是与点击无关的
+    // 独立信号——面板真消失才认不出。repeat_count 降到 2，只在「点完 3s 内面板仍在」
+    // 时才补一次，正常路径永远只点一下。
+    // target_offset 把 44×45 的识别框收缩到中心 20×20：该关闭按钮是圆形
+    // （实测圆心 (639.5,607.5)、外径 40px、半径 20），识别框四角在圆外，
+    // 收缩后角点到圆心 14.1px < 20px，取点必然落在圆内。
     "SceneNoticeRewardsConfirmClick": {
-        "desc": "奖励界面：点击 CloseRewardsButton 关闭（ADB：点击被吞时重试）",
+        "desc": "奖励界面：点击 CloseRewardsButton 关闭（ADB：点一次并确认面板消失，必要时补一次）",
         "recognition": {
             "type": "And",
             "param": {
@@ -30,8 +37,16 @@
                 "custom_action": "RepeatUntilNotFoundAction",
                 "custom_action_param": {
                     "action": "Click",
-                    "wait_node": "SceneNoticeRewardsConfirmClick",
-                    "repeat_count": 3
+                    "action_param": {
+                        "target_offset": [
+                            12,
+                            12,
+                            -24,
+                            -25
+                        ]
+                    },
+                    "wait_node": "InNoticeRewards",
+                    "repeat_count": 2
                 }
             }
         },
