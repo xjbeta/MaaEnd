@@ -197,9 +197,20 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 
 	// 提交货物后的画面由终点类型决定：NPC 终点先进入对话，资源回收站终点直接弹出奖励结算框。
 	// 两个画面同时挂在 next 里时，另一类终点的识别框有机会抢先命中，所以这里按终点类型写死单一路径。
-	override[submitGoodsNode] = map[string]any{
+	//
+	// NPC 终点另挂一条 on_error 兜底：next 循环超时（对话始终没出现）后才认奖励结算框。
+	// on_error 只在 next 全部落空并耗尽 timeout 时触发，正常出对话的流程不会走到这里，
+	// 因此不会把「抢先命中」放回来。2026-11-22 10:33 实机：NPC 终点「赵昭」提交后没进对话，
+	// 直接弹奖励框（10:33:43.344 AutoDeliveryCloseRewardDialog 命中），而 next 只有
+	// AutoDeliveryCheckSkipChatReady，空转 6019 ms 后 PipelineTask bad next，整单判失败
+	// ——货物其实已送达、奖励也已入账。资源回收站终点的 next 本身就是奖励框，不需要兜底。
+	submitGoods := map[string]any{
 		"next": submitGoodsFlow(dest.Kind),
 	}
+	if dest.Kind != destinationKindRecycleBin {
+		submitGoods["on_error"] = []string{closeRewardDialogNode}
+	}
+	override[submitGoodsNode] = submitGoods
 
 	// 交货图标只有十几像素，周围还有别的角色时容易命中别人的交互提示。
 	// 开启名称复核的终点额外要求提示文本命中该终点的名称；每次解析都显式重写 all_of，

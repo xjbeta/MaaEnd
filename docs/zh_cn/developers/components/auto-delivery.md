@@ -109,6 +109,8 @@ Go 侧的 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationActi
 
 提交货物之后先认哪一屏由终点类型决定：`AutoDeliveryResolveDestinationAction` 解析出终点时会把 `AutoDeliverySubmitGoods` 的 `next` 整体重写成单一条路径——收货 NPC 只认对话跳过按钮 `AutoDeliveryCheckSkipChatReady`，资源回收站只认奖励结算框 `AutoDeliveryCloseRewardDialog`。两个画面若并列在 `next` 里，另一类终点的识别框有机会抢先命中，所以不再并列。
 
+收货 NPC 另有一条 `on_error` 兜底：`next` 循环耗尽 `timeout` 后仍未命中（对话始终没出现）才转去认奖励结算框。`on_error` 只在 `next` 全部落空并超时后触发，正常出对话的流程不会走到，所以不会把「抢先命中」放回来。这条兜底来自实机：2026-11-22 10:33，NPC 终点「赵昭」提交后没有进入对话，直接弹出奖励结算框，而 `next` 只有 `AutoDeliveryCheckSkipChatReady`，空转 6019 ms 后 `PipelineTask bad next`，整单被判失败——但货物其实已经送达、奖励也已入账。
+
 两类目标不接交互点，路线结尾与原来一样：仓储路线（只走到仓储节点、不取货的调用方也用这条路线，取货在业务侧）只把终点挪到交互范围中心，人工路线的裸坐标末点同样挪过去；开了 `verify_name` 的 NPC 照旧由业务侧复核名字后点击。
 
 运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
