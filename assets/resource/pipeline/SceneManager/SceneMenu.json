@@ -203,7 +203,11 @@
         ]
     },
     "__ScenePrivateMenuListScrollToMission": {
-        "desc": "菜单列表滑动到任务入口，最多三次",
+        // 菜单总列表是一圈分页条目，滑动一次不一定能把「任务」带进视野：
+        // 2026-11-23 09:25 第 3 单取货后进任务界面，滑一次后「任务」仍不在屏上，
+        // 之后 22 s 只在原地反复 OCR（旧 next 只有 ClickMenuMission），最后整单失败。
+        // 因此 next 里带上自己：每滑一次都重新 OCR，没找到就再滑，max_hit 限制总次数。
+        "desc": "菜单列表滑动到任务入口，最多三次（每次滑完都重试识别）",
         "max_hit": 3,
         "recognition": "And",
         "all_of": [
@@ -225,14 +229,21 @@
                     10,
                     10
                 ],
-                "end_hold": 500
+                "end_hold": 500,
+                // 默认 200 ms 在 15~30 FPS 的机器上容易被当成快速甩动而弹回原页，
+                // 放慢到 400 ms 做成「按住拖动」，配合 end_hold 更容易被游戏识别为滚动
+                "duration": 400
             }
         },
         "post_wait_freezes": 500,
         "post_delay": 0,
+        // 三次滑完仍未找到时，别再把默认 20 s 耗在反复 OCR 上，快速失败交给上层兜底；
+        // 留 10 s 是为了给「滑一次 + 两次 OCR」留足余量（低帧率下单轮可达 5 s）
+        "timeout": 10000,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuListClickMenuMission"
+            "__ScenePrivateMenuListClickMenuMission",
+            "__ScenePrivateMenuListScrollToMission"
         ]
     },
     "__ScenePrivateAnyEnterMenuMissionSuccess": {
