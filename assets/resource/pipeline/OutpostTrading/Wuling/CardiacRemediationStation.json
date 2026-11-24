@@ -696,9 +696,39 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        // 正常情况点选干员后约 0.6 s 就出现「派驻」按钮（11-24 实测）。
+        // 留 5 s 覆盖低帧率抖动；超过 5 s 仍没有「派驻」，说明该干员已是当前派驻、
+        // 游戏只给「撤下」，此时不再空等默认 20 s 直到整单失败。
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "OutpostTradingCardiacRemediationStationConfirmRestoreOperator"
+        ],
+        "on_error": [
+            "OutpostTradingCardiacRemediationStationRestoreOperatorAlreadyCurrent"
+        ]
+    },
+    "OutpostTradingCardiacRemediationStationRestoreOperatorAlreadyCurrent": {
+        "desc": "据点恢复干员已是当前派驻，无需变更",
+        // 与 InfraStation 同源问题：点中的干员本来就是该据点当前派驻时，
+        // 游戏只给红色「撤下」、没有白色「派驻」，确认节点会空等到超时。
+        // 只在 SelectRestoreOperator 超时后的 on_error 触发，避开点选瞬间的过渡帧。
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingCheckWithdrawText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "CardiacRemediationStation",
+            "changed": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingCardiacRemediationStationCloseRestoreOperatorLiaison"
         ]
     },
     "OutpostTradingCardiacRemediationStationConfirmRestoreOperator": {

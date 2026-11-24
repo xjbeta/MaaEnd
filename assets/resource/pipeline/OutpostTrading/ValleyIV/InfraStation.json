@@ -696,9 +696,43 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        // 正常情况点选干员后约 0.6 s 就出现「派驻」按钮（11-24 实测 11:21:46.158 → 11:21:47.390）。
+        // 留 5 s 足够覆盖低帧率抖动；超过 5 s 仍没有「派驻」，说明这个干员已经是当前派驻、
+        // 游戏只给「撤下」，此时不再空等默认 20 s 直到整单失败。
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "OutpostTradingInfraStationConfirmRestoreOperator"
+        ],
+        "on_error": [
+            "OutpostTradingInfraStationRestoreOperatorAlreadyCurrent"
+        ]
+    },
+    "OutpostTradingInfraStationRestoreOperatorAlreadyCurrent": {
+        "desc": "基建前站选中的恢复干员已是当前派驻，无需变更",
+        // 2026-11-24 10:47 实机：点中的「祀」本来就是该据点当前派驻（卡片有「当前派驻」徽章），
+        // 游戏只给红色「撤下」，没有白色「派驻」确认键，
+        // ConfirmRestoreOperator 因此连续识别 171 次全部落空、20 s 超时整单失败。
+        //
+        // 只在 SelectRestoreOperator 的 on_error 里触发，即「已经等满 5 s 仍没有派驻按钮」之后，
+        // 因此不会撞上点选干员瞬间的过渡帧（实测点选后 0.6 s 内按钮会短暂显示「撤下」再变「派驻」）。
+        // 判据用「撤下」：详情页出现撤下 = 该干员已派驻在当前据点，不需要再派驻。
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingCheckWithdrawText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "InfraStation",
+            "changed": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingInfraStationCloseRestoreOperatorLiaison"
         ]
     },
     "OutpostTradingInfraStationConfirmRestoreOperator": {
