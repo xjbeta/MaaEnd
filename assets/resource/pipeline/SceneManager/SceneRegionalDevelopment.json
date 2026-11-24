@@ -192,6 +192,37 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateMenuRegionalDevelopmentSelectRegionPanelReady",
+            "[Anchor]__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentSelectRegionPanelReady": {
+        "desc": "更改地区面板已展开完成（地区卡片与确认按钮都已渲染）",
+        // 2026-11-24 实机逐帧证据：点「更换地区」后面板有展开动画，
+        // 期间 OCR 只能读到残缺文字，导致 SelectRegionValleyIV 反复失败：
+        //   33.339  只有「据点管」（面板未开）
+        //   33.628  「号谷地」@y=205（展开中，缺「四」字，位置也偏高）
+        //   33.888  「四号谷地」@y=272 + 「当前查看地区」（已稳定）
+        // 因此不能用「地区名」当就绪判据，要用只在稳定后才出现的「当前查看地区」标签。
+        // 本节点不动作，只负责把「面板已就绪」这个状态确认下来，再交给真正的选择节点。
+        "recognition": "OCR",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "当前查看地区",
+            "當前查看地區",
+            "(?i)Currently\\s*viewing",
+            "現在表示中"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "[Anchor]__ScenePrivateMenuRegionalDevelopmentSelectRegionAnchor"
         ]
     },
@@ -211,6 +242,17 @@
             "4번 협곡",
             "Valley"
         ],
+        // 面板展开动画期间地区卡会先出现在 y≈205 再落到 y≈272（实测 11-24），
+        // 等卡片区域静止再点，避免点在动画途中的位置。
+        "pre_wait_freezes": {
+            "time": 120,
+            "target": [
+                500,
+                180,
+                200,
+                120
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -233,6 +275,17 @@
             "(?i)Wuling",
             "무릉"
         ],
+        // 面板展开动画期间地区卡会先出现在 y≈205 再落到 y≈272（实测 11-24），
+        // 等卡片区域静止再点，避免点在动画途中的位置。
+        "pre_wait_freezes": {
+            "time": 120,
+            "target": [
+                500,
+                180,
+                200,
+                120
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
